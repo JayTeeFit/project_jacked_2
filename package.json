@@ -1,0 +1,12 @@
+{
+  "name": "project_jacked_2",
+  "version": "1.0.0",
+  "description": "This is the second version of the project_jacked backend, using express, sequelize, postgres, typescript and graphql",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
