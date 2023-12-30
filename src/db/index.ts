@@ -34,26 +34,20 @@ export default class Database {
     });
 
     // check if we connected successfully
-    try {
-      await this.connection.authenticate({
-        logging: false,
-      });
+    await this.connection.authenticate({
+      logging: false,
+    });
 
-      if (!this.isTestEnv) {
-        console.log("Connection to db has been established successfully");
-      }
-
-      // Register the models
-      const models = new Models();
-      models.registerModels(this.connection);
-
-      //Sync the models
-      await this.sync();
-    } catch (error) {
-      const errorMessage = getErrorMessage(error);
-      // TODO: replace with actual logging
-      console.log(`Error connecting to db: ${errorMessage}`);
+    if (!this.isTestEnv) {
+      console.log("Connection to db has been established successfully");
     }
+
+    // Register the models
+    const models = new Models();
+    models.registerModels(this.connection);
+
+    //Sync the models
+    await this.sync();
   }
 
   async disconnect() {
