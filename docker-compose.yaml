@@ -1,20 +1,29 @@
-version: '3'
+version: "3"
 services:
   postgres:
     image: postgres:15.5
     container_name: project-jacked-db
+    restart: always
+    volumes:
+      - ./data/dev_db:/var/lib/postgresql/data
     env_file:
       - .env
     environment:
+      POSTGRES_DB: jayteeDB
+      POSTGRES_USER: ${DB_USER:-postgres}
       POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
     ports:
       - ${DB_PORT:-5432}:5432
-  postgres-test:
-    image: postgres:15.5
-    container_name: project-jacked-test-db
-    env_file:
-      - .env
-    environment:
-      POSTGRES_PASSWORD: ${DB_TEST_PASSWORD:-postgres}
-    ports:
-      - ${DB_TEST_PORT:-5433}:5432
+  # postgres-test:
+  #   image: postgres:15.5
+  #   container_name: project-jacked-test-db
+  #   volumes:
+  #     - ./data/test_db:/var/lib/postgresql/data
+  #   env_file:
+  #     - .env
+  #   environment:
+  #     POSTGRES_DB: jayteeTestDB
+  #     POSTGRES_USER: ${DB_TEST_USER:-postgres}
+  #     POSTGRES_PASSWORD: ${DB_TEST_PASSWORD:-postgres}
+  #   ports:
+  #     - ${DB_TEST_PORT:-5433}:5432

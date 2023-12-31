@@ -5,14 +5,14 @@ import dbConfigs from "src/config/database";
 import "src/utils/globals";
 import express, { Express, Request, Response } from "express";
 
-(async () => {
-  try {
-    const db = new Database(env.nodeEnv, dbConfigs);
-    await db.connect();
-  } catch (error) {
-    console.log(`Error connecting to db: ${getErrorMessage(error)}`);
-  }
-})();
+// (async () => {
+//   try {
+//     const db = new Database(env.nodeEnv, dbConfigs);
+//     await db.connect();
+//   } catch (error) {
+//     console.log(`Error connecting to db: ${getErrorMessage(error)}`);
+//   }
+// })();
 
 // const app: Express = express();
 // const port = process.env.PORT || 3000;

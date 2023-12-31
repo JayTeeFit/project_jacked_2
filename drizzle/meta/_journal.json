@@ -1,0 +1,20 @@
+{
+  "version": "5",
+  "dialect": "pg",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "5",
+      "when": 1704006804999,
+      "tag": "0000_overconfident_lockjaw",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "5",
+      "when": 1704010284009,
+      "tag": "0001_clean_korvac",
+      "breakpoints": true
+    }
+  ]
+}
