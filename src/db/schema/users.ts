@@ -1,11 +1,4 @@
-import {
-  pgTable,
-  serial,
-  varchar,
-  integer,
-  boolean,
-  text,
-} from "drizzle-orm/pg-core";
+import { pgTable, serial, varchar, boolean, text } from "drizzle-orm/pg-core";
 import {
   trashableObjectColumns,
   createdAndUpdatedAtColumns,
@@ -35,3 +28,6 @@ export const usersRelations = relations(users, ({ one, many }) => ({
   profile: one(userProfiles),
   addresses: many(userAddresses),
 }));
+
+export type UserSchema = typeof users.$inferSelect;
+export type NewUserSchema = typeof users.$inferInsert;

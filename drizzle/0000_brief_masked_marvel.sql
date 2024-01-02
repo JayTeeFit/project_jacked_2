@@ -1,3 +1,19 @@
+CREATE TABLE IF NOT EXISTS "users" (
+	"id" serial PRIMARY KEY NOT NULL,
+	"username" varchar(15) NOT NULL,
+	"email" varchar(256) NOT NULL,
+	"is_active" boolean DEFAULT true,
+	"is_claimed" boolean DEFAULT false,
+	"is_admin" boolean DEFAULT false,
+	"premiumness" text DEFAULT 'free' NOT NULL,
+	"created_at" timestamp with time zone DEFAULT now(),
+	"updated_at" timestamp with time zone DEFAULT now(),
+	"trashed_at" timestamp with time zone,
+	"trashed_by" integer,
+	CONSTRAINT "users_username_unique" UNIQUE("username"),
+	CONSTRAINT "users_email_unique" UNIQUE("email")
+);
+--> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "user_profiles" (
 	"id" serial PRIMARY KEY NOT NULL,
 	"user_id" integer NOT NULL,
@@ -23,14 +39,8 @@ CREATE TABLE IF NOT EXISTS "user_addresses" (
 	"trashed_by" integer
 );
 --> statement-breakpoint
-ALTER TABLE "users" ALTER COLUMN "is_active" SET DEFAULT true;--> statement-breakpoint
-ALTER TABLE "users" ALTER COLUMN "is_claimed" SET DEFAULT false;--> statement-breakpoint
-ALTER TABLE "users" ADD COLUMN "is_admin" boolean DEFAULT false;--> statement-breakpoint
-ALTER TABLE "users" ADD COLUMN "profile_id" integer NOT NULL;--> statement-breakpoint
-ALTER TABLE "users" ADD COLUMN "premiumness" text DEFAULT 'free' NOT NULL;--> statement-breakpoint
-ALTER TABLE "users" DROP COLUMN IF EXISTS "premiumness_id";--> statement-breakpoint
 DO $$ BEGIN
- ALTER TABLE "user_profiles" ADD CONSTRAINT "user_profiles_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE no action ON UPDATE no action;
+ ALTER TABLE "user_profiles" ADD CONSTRAINT "user_profiles_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE cascade ON UPDATE no action;
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;

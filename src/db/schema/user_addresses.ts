@@ -30,3 +30,6 @@ export const userAddressesRelations = relations(userAddresses, ({ one }) => ({
     references: [users.id],
   }),
 }));
+
+export type UserAddress = typeof userAddresses.$inferSelect;
+export type NewUserAddress = typeof userAddresses.$inferInsert;

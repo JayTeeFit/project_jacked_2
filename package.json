@@ -26,7 +26,8 @@
     "test:coverage": "npm test -- --coverage",
     "migration:generate": "drizzle-kit generate:pg --schema=./src/db/schema/index.ts",
     "migration:push": "node -r esbuild-register src/db/migrate.ts",
-    "migrate": "npm run migration:generate && npm run migration:push"
+    "migrate": "npm run migration:generate && npm run migration:push",
+    "migrations:drop": "drizzle-kit drop"
   },
   "keywords": [],
   "author": "",
