@@ -1,0 +1,1 @@
+ALTER TABLE "users" ALTER COLUMN "profile_id" DROP NOT NULL;

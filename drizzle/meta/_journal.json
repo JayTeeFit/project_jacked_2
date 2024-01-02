@@ -15,6 +15,34 @@
       "when": 1704010284009,
       "tag": "0001_clean_korvac",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1704076531873,
+      "tag": "0002_marvelous_baron_strucker",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "5",
+      "when": 1704156287777,
+      "tag": "0003_charming_living_tribunal",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "5",
+      "when": 1704156441902,
+      "tag": "0004_careless_vertigo",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "5",
+      "when": 1704157394358,
+      "tag": "0005_familiar_miss_america",
+      "breakpoints": true
     }
   ]
 }
