@@ -9,7 +9,9 @@ import { relations } from "drizzle-orm";
 
 export const userAddresses = pgTable("user_addresses", {
   id: serial("id").primaryKey(),
-  userId: integer("user_id").notNull(),
+  userId: integer("user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
   unitNumber: varchar("unit_number", { length: 16 }),
   streetNumber: varchar("street_number", { length: 32 }),
   streetName: varchar("street_name", { length: 50 }),

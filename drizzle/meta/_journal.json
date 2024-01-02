@@ -15,6 +15,13 @@
       "when": 1704171435191,
       "tag": "0001_fluffy_preak",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1704175176893,
+      "tag": "0002_wet_dracula",
+      "breakpoints": true
     }
   ]
 }
