@@ -1,11 +1,4 @@
-import {
-  PgTableWithColumns,
-  TableConfig,
-  integer,
-  serial,
-  text,
-  timestamp,
-} from "drizzle-orm/pg-core";
+import { integer, serial, text, timestamp } from "drizzle-orm/pg-core";
 import {
   DataType,
   dataTypesEnum,
