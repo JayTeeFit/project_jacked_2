@@ -1,5 +1,5 @@
 import { pgTable, serial, varchar, integer, index } from "drizzle-orm/pg-core";
-import { users } from "src/db/schema/users";
+import { users } from "src/db/schema/users/users";
 import {
   trashableObjectColumns,
   createdAndUpdatedAtColumns,

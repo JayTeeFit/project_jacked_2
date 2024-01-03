@@ -1,4 +1,15 @@
-import { integer, serial, text, varchar, timestamp } from "drizzle-orm/pg-core";
+import {
+  PgTableWithColumns,
+  TableConfig,
+  integer,
+  serial,
+  text,
+  timestamp,
+} from "drizzle-orm/pg-core";
+import {
+  DataType,
+  dataTypesEnum,
+} from "src/db/schema/types/dynamic_properties";
 
 export const trashableObjectColumns = {
   trashedAt: timestamp("trashed_at", { withTimezone: true }),
@@ -16,4 +27,14 @@ export const updatedAtColumn = {
 export const createdAndUpdatedAtColumns = {
   ...createdAtColumn,
   ...updatedAtColumn,
+};
+
+export const listOrderColumn = {
+  listOrder: integer("list_order"),
+};
+
+export const dynamicPropertiesSchema = {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull().unique(),
+  dataType: text("data_type", { enum: dataTypesEnum }).notNull(),
 };

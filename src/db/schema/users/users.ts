@@ -5,8 +5,8 @@ import {
 } from "src/db/schema/utils/schema_helpers";
 import { premiumnessConfigEnum } from "src/db/schema/types/user";
 import { relations } from "drizzle-orm";
-import { userProfiles } from "src/db/schema/user_profiles";
-import { userAddresses } from "src/db/schema/user_addresses";
+import { userProfiles } from "src/db/schema/users/user_profiles";
+import { userAddresses } from "src/db/schema/users/user_addresses";
 
 export const users = pgTable("users", {
   id: serial("id").primaryKey(),

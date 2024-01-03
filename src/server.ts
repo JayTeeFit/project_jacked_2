@@ -2,11 +2,11 @@ import "src/config/index";
 import "src/utils/globals";
 import "src/types/process_env";
 import express, { Express, Request, Response } from "express";
-import { users, NewUserSchema } from "src/db/schema/users";
+import { users, NewUserSchema } from "src/db/schema/users/users";
 import {
   userProfiles,
   NewUserProfileSchema,
-} from "src/db/schema/user_profiles";
+} from "src/db/schema/users/user_profiles";
 import { db } from "src/db";
 import { eq } from "drizzle-orm";
 
@@ -34,6 +34,14 @@ app.get("/insertuser", async (req: Request, res: Response) => {
     isAdmin: true,
     isClaimed: true,
   };
+
+  const newUser: NewUserSchema = {
+    username: "test",
+    email: "test@email.com",
+    premiumness: "coach",
+  };
+  await db.insert(users).values(newUser);
+
   const result = await db
     .insert(users)
     .values(newAdmin)
