@@ -1,5 +1,5 @@
 import { date, integer, pgTable, serial } from "drizzle-orm/pg-core";
-import { exerciseTemplates } from "src/db/schema/exercises/exercise_templates";
+import { exerciseInfo } from "src/db/schema/exercises/exercise_info";
 import { users } from "src/db/schema/users/users";
 
 export const userExercises = pgTable("user_exercises", {
@@ -7,10 +7,8 @@ export const userExercises = pgTable("user_exercises", {
   userId: integer("user_id")
     .notNull()
     .references(() => users.id, { onDelete: "cascade" }),
-  exerciseId: integer("exercise_id")
+  exerciseInfoId: integer("exercise_info_id")
     .notNull()
-    .references(() => exerciseTemplates.id, { onDelete: "cascade" }),
-  routineId: integer("routine_id"),
-  // .references(() => userRoutines.id, { onDelete: "cascade" }),
+    .references(() => exerciseInfo.id, { onDelete: "cascade" }),
   date: date("date"),
 });

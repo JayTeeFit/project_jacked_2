@@ -1,8 +1,5 @@
 import { integer, serial, text, timestamp } from "drizzle-orm/pg-core";
-import {
-  DataType,
-  dataTypesEnum,
-} from "src/db/schema/types/dynamic_properties";
+import { dataTypesEnum } from "src/db/schema/types/dynamic_properties";
 
 export const trashableObjectColumns = {
   trashedAt: timestamp("trashed_at", { withTimezone: true }),
@@ -28,6 +25,6 @@ export const listOrderColumn = {
 
 export const dynamicPropertiesSchema = {
   id: serial("id").primaryKey(),
-  name: text("name").notNull().unique(),
+  name: text("name").unique().notNull(),
   dataType: text("data_type", { enum: dataTypesEnum }).notNull(),
 };
