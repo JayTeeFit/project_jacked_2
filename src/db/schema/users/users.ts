@@ -24,8 +24,8 @@ export const users = pgTable("users", {
   })
     .notNull()
     .default("free"),
-  ...createdAndUpdatedAtColumns,
-  ...trashableObjectColumns,
+  ...createdAndUpdatedAtColumns(),
+  ...trashableObjectColumns(),
 });
 
 export const usersRelations = relations(users, ({ one, many }) => ({

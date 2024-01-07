@@ -5,22 +5,8 @@
     {
       "idx": 0,
       "version": "5",
-      "when": 1704169563088,
-      "tag": "0000_brief_masked_marvel",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "5",
-      "when": 1704171435191,
-      "tag": "0001_fluffy_preak",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "5",
-      "when": 1704175176893,
-      "tag": "0002_wet_dracula",
+      "when": 1704598149787,
+      "tag": "0000_first_machine_man",
       "breakpoints": true
     }
   ]

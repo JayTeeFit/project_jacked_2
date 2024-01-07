@@ -18,7 +18,7 @@ export const exerciseInfo = pgTable("exercise_info", {
   creatorId: integer("creator_id").references(() => users.id, {
     onDelete: "cascade",
   }),
-  ...trashableObjectColumns,
+  ...trashableObjectColumns(),
 });
 
 export const exerciseInfoRelations = relations(

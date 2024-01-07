@@ -5,9 +5,7 @@ import { dynamicPropertiesSchema } from "src/db/schema/utils/schema_helpers";
 
 export const propertiesForExerciseInfo = pgTable(
   "properties_for_exercise_info",
-  {
-    ...dynamicPropertiesSchema,
-  }
+  dynamicPropertiesSchema()
 );
 
 export const propertiesForExerciseInfoRelations = relations(

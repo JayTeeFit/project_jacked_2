@@ -30,7 +30,7 @@ export const exerciseSets = pgTable("exercise_sets", {
     length: 10,
     enum: exertionUnitsEnum,
   }),
-  ...listOrderColumn,
+  ...listOrderColumn(),
 });
 
 export const exerciseSetsRelations = relations(

@@ -22,8 +22,8 @@ export const userAddresses = pgTable("user_addresses", {
     length: 16,
     enum: [...addressTypeConfigEnum],
   }).notNull(),
-  ...createdAndUpdatedAtColumns,
-  ...trashableObjectColumns,
+  ...createdAndUpdatedAtColumns(),
+  ...trashableObjectColumns(),
 });
 
 export const userAddressesRelations = relations(userAddresses, ({ one }) => ({

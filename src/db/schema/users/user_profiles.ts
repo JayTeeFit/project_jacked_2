@@ -12,7 +12,7 @@ export const userProfiles = pgTable("user_profiles", {
   firstName: varchar("first_name", { length: 50 }),
   lastName: varchar("last_name", { length: 50 }),
   aboutMe: text("about_me"),
-  ...updatedAtColumn,
+  ...updatedAtColumn(),
 });
 
 export const userProfileRelations = relations(userProfiles, ({ one }) => ({
