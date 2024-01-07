@@ -14,8 +14,8 @@ import { setProperties } from "src/db/schema/exercise_sets/set_properties";
 export const exerciseSets = pgTable("exercise_sets", {
   id: serial("id").primaryKey(),
   exerciseId: integer("exercise_id")
-    .notNull()
-    .references(() => userExercises.id, { onDelete: "cascade" }),
+    .references(() => userExercises.id, { onDelete: "cascade" })
+    .notNull(),
   actualWeight: decimal("actual_weight", {
     precision: 4,
     scale: 2,
