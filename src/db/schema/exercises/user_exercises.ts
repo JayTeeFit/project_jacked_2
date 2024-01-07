@@ -1,5 +1,9 @@
 import { relations } from "drizzle-orm";
 import { date, integer, pgTable, serial } from "drizzle-orm/pg-core";
+import {
+  trashableObjectColumns,
+  createdAndUpdatedAtColumns,
+} from "src/db/schema/utils/schema_helpers";
 import { exerciseInfo } from "src/db/schema/exercises/exercise_info";
 import { users } from "src/db/schema/users/users";
 
@@ -12,6 +16,8 @@ export const userExercises = pgTable("user_exercises", {
     .notNull()
     .references(() => exerciseInfo.id, { onDelete: "cascade" }),
   date: date("date"),
+  ...createdAndUpdatedAtColumns(),
+  ...trashableObjectColumns(),
 });
 
 export const userExercisesRelations = relations(userExercises, ({ one }) => ({
