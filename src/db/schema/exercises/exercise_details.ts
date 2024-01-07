@@ -8,9 +8,9 @@ import {
 import { exerciseNameVariants } from "src/db/schema/exercises/exercise_name_variants";
 import { relations } from "drizzle-orm";
 import { userExercises } from "src/db/schema/exercises/user_exercises";
-import { exerciseInfoProperties } from "src/db/schema/exercises/exercise_info_properties";
+import { exerciseDetailProperties } from "src/db/schema/exercises/exercise_detail_properties";
 
-export const exerciseInfo = pgTable("exercise_info", {
+export const exerciseDetails = pgTable("exercise_details", {
   id: serial("id").primaryKey(),
   nameId: integer("name_id")
     .references(() => exerciseNames.id, { onDelete: "cascade" })
@@ -25,25 +25,25 @@ export const exerciseInfo = pgTable("exercise_info", {
   ...trashableObjectColumns(),
 });
 
-export const exerciseInfoRelations = relations(
-  exerciseInfo,
+export const exerciseDetailsRelations = relations(
+  exerciseDetails,
   ({ one, many }) => ({
     variant: one(exerciseNameVariants, {
-      fields: [exerciseInfo.variantId],
+      fields: [exerciseDetails.variantId],
       references: [exerciseNameVariants.id],
     }),
     name: one(exerciseNames, {
-      fields: [exerciseInfo.nameId],
+      fields: [exerciseDetails.nameId],
       references: [exerciseNames.id],
     }),
     creator: one(users, {
-      fields: [exerciseInfo.creatorId],
+      fields: [exerciseDetails.creatorId],
       references: [users.id],
     }),
     exercises: many(userExercises),
-    properties: many(exerciseInfoProperties),
+    properties: many(exerciseDetailProperties),
   })
 );
 
-export type ExerciseInfoSchema = typeof exerciseInfo.$inferSelect;
-export type NewExerciseInfoSchema = typeof exerciseInfo.$inferInsert;
+export type ExerciseDetailsSchema = typeof exerciseDetails.$inferSelect;
+export type NewExerciseDetailsSchema = typeof exerciseDetails.$inferInsert;

@@ -1,5 +1,5 @@
 {
-  "id": "6fe24079-5acd-403f-b02d-1f622063e66d",
+  "id": "c5c2a340-03d1-4226-b648-27133291dbf3",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "5",
   "dialect": "pg",
@@ -461,8 +461,8 @@
           "primaryKey": false,
           "notNull": true
         },
-        "info_id": {
-          "name": "info_id",
+        "detail_id": {
+          "name": "detail_id",
           "type": "integer",
           "primaryKey": false,
           "notNull": true
@@ -470,6 +470,32 @@
         "date": {
           "name": "date",
           "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        },
+        "trashed_at": {
+          "name": "trashed_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "trashed_by": {
+          "name": "trashed_by",
+          "type": "integer",
           "primaryKey": false,
           "notNull": false
         }
@@ -489,12 +515,12 @@
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
-        "user_exercises_info_id_exercise_info_id_fk": {
-          "name": "user_exercises_info_id_exercise_info_id_fk",
+        "user_exercises_detail_id_exercise_details_id_fk": {
+          "name": "user_exercises_detail_id_exercise_details_id_fk",
           "tableFrom": "user_exercises",
-          "tableTo": "exercise_info",
+          "tableTo": "exercise_details",
           "columnsFrom": [
-            "info_id"
+            "detail_id"
           ],
           "columnsTo": [
             "id"
@@ -506,8 +532,8 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "exercise_info": {
-      "name": "exercise_info",
+    "exercise_details": {
+      "name": "exercise_details",
       "schema": "",
       "columns": {
         "id": {
@@ -534,6 +560,20 @@
           "primaryKey": false,
           "notNull": false
         },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        },
         "trashed_at": {
           "name": "trashed_at",
           "type": "timestamp with time zone",
@@ -549,9 +589,9 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "exercise_info_name_id_exercise_names_id_fk": {
-          "name": "exercise_info_name_id_exercise_names_id_fk",
-          "tableFrom": "exercise_info",
+        "exercise_details_name_id_exercise_names_id_fk": {
+          "name": "exercise_details_name_id_exercise_names_id_fk",
+          "tableFrom": "exercise_details",
           "tableTo": "exercise_names",
           "columnsFrom": [
             "name_id"
@@ -562,9 +602,9 @@
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
-        "exercise_info_variant_id_exercise_name_variants_id_fk": {
-          "name": "exercise_info_variant_id_exercise_name_variants_id_fk",
-          "tableFrom": "exercise_info",
+        "exercise_details_variant_id_exercise_name_variants_id_fk": {
+          "name": "exercise_details_variant_id_exercise_name_variants_id_fk",
+          "tableFrom": "exercise_details",
           "tableTo": "exercise_name_variants",
           "columnsFrom": [
             "variant_id"
@@ -572,12 +612,12 @@
           "columnsTo": [
             "id"
           ],
-          "onDelete": "cascade",
+          "onDelete": "set null",
           "onUpdate": "no action"
         },
-        "exercise_info_creator_id_users_id_fk": {
-          "name": "exercise_info_creator_id_users_id_fk",
-          "tableFrom": "exercise_info",
+        "exercise_details_creator_id_users_id_fk": {
+          "name": "exercise_details_creator_id_users_id_fk",
+          "tableFrom": "exercise_details",
           "tableTo": "users",
           "columnsFrom": [
             "creator_id"
@@ -592,12 +632,12 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "exercise_info_properties": {
-      "name": "exercise_info_properties",
+    "exercise_detail_properties": {
+      "name": "exercise_detail_properties",
       "schema": "",
       "columns": {
-        "exercise_info_id": {
-          "name": "exercise_info_id",
+        "detail_id": {
+          "name": "detail_id",
           "type": "integer",
           "primaryKey": false,
           "notNull": true
@@ -617,12 +657,12 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "exercise_info_properties_exercise_info_id_exercise_info_id_fk": {
-          "name": "exercise_info_properties_exercise_info_id_exercise_info_id_fk",
-          "tableFrom": "exercise_info_properties",
-          "tableTo": "exercise_info",
+        "exercise_detail_properties_detail_id_exercise_details_id_fk": {
+          "name": "exercise_detail_properties_detail_id_exercise_details_id_fk",
+          "tableFrom": "exercise_detail_properties",
+          "tableTo": "exercise_details",
           "columnsFrom": [
-            "exercise_info_id"
+            "detail_id"
           ],
           "columnsTo": [
             "id"
@@ -630,10 +670,10 @@
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
-        "exercise_info_properties_property_id_properties_for_exercise_info_id_fk": {
-          "name": "exercise_info_properties_property_id_properties_for_exercise_info_id_fk",
-          "tableFrom": "exercise_info_properties",
-          "tableTo": "properties_for_exercise_info",
+        "exercise_detail_properties_property_id_properties_for_exercise_details_id_fk": {
+          "name": "exercise_detail_properties_property_id_properties_for_exercise_details_id_fk",
+          "tableFrom": "exercise_detail_properties",
+          "tableTo": "properties_for_exercise_details",
           "columnsFrom": [
             "property_id"
           ],
@@ -645,18 +685,18 @@
         }
       },
       "compositePrimaryKeys": {
-        "exercise_info_properties_exercise_info_id_property_id_pk": {
-          "name": "exercise_info_properties_exercise_info_id_property_id_pk",
+        "exercise_detail_properties_detail_id_property_id_pk": {
+          "name": "exercise_detail_properties_detail_id_property_id_pk",
           "columns": [
-            "exercise_info_id",
+            "detail_id",
             "property_id"
           ]
         }
       },
       "uniqueConstraints": {}
     },
-    "properties_for_exercise_info": {
-      "name": "properties_for_exercise_info",
+    "properties_for_exercise_details": {
+      "name": "properties_for_exercise_details",
       "schema": "",
       "columns": {
         "id": {
@@ -682,8 +722,8 @@
       "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
-        "properties_for_exercise_info_name_unique": {
-          "name": "properties_for_exercise_info_name_unique",
+        "properties_for_exercise_details_name_unique": {
+          "name": "properties_for_exercise_details_name_unique",
           "nullsNotDistinct": false,
           "columns": [
             "name"

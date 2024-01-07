@@ -9,7 +9,7 @@ import { userProfiles } from "src/db/schema/users/user_profiles";
 import { userAddresses } from "src/db/schema/users/user_addresses";
 import { userExercises } from "src/db/schema/exercises/user_exercises";
 import { exerciseNames } from "src/db/schema/exercises/exercise_names";
-import { exerciseInfo } from "src/db/schema/exercises/exercise_info";
+import { exerciseDetails } from "src/db/schema/exercises/exercise_details";
 import { exerciseVariantNames } from "src/db/schema/exercises/exercise_variant_names";
 
 export const users = pgTable("users", {
@@ -32,7 +32,7 @@ export const usersRelations = relations(users, ({ one, many }) => ({
   profile: one(userProfiles),
   addresses: many(userAddresses),
   exercises: many(userExercises),
-  exerciseInfo: many(exerciseInfo),
+  exerciseDetails: many(exerciseDetails),
   exerciseNames: many(exerciseNames),
   exerciseVariantNames: many(exerciseVariantNames),
 }));

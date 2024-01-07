@@ -5,7 +5,7 @@ services:
     container_name: project-jacked-db
     restart: always
     volumes:
-      - ./data/dev_db:/var/lib/postgresql/data
+      - ./data/db:/var/lib/postgresql/data
     env_file:
       - .env
     environment:

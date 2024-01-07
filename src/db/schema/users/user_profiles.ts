@@ -6,9 +6,9 @@ import { updatedAtColumn } from "src/db/schema/utils/schema_helpers";
 export const userProfiles = pgTable("user_profiles", {
   id: serial("id").primaryKey(),
   userId: integer("user_id")
-    .notNull()
     .references(() => users.id, { onDelete: "cascade" })
-    .unique(),
+    .unique()
+    .notNull(),
   firstName: varchar("first_name", { length: 50 }),
   lastName: varchar("last_name", { length: 50 }),
   aboutMe: text("about_me"),

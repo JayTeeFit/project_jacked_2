@@ -5,15 +5,8 @@
     {
       "idx": 0,
       "version": "5",
-      "when": 1704598149787,
-      "tag": "0000_first_machine_man",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "5",
-      "when": 1704599113916,
-      "tag": "0001_clammy_imperial_guard",
+      "when": 1704608591947,
+      "tag": "0000_tricky_omega_sentinel",
       "breakpoints": true
     }
   ]

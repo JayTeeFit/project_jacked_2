@@ -68,31 +68,37 @@ CREATE TABLE IF NOT EXISTS "properties_for_sets" (
 CREATE TABLE IF NOT EXISTS "user_exercises" (
 	"id" serial PRIMARY KEY NOT NULL,
 	"user_id" integer NOT NULL,
-	"info_id" integer NOT NULL,
-	"date" date
-);
---> statement-breakpoint
-CREATE TABLE IF NOT EXISTS "exercise_info" (
-	"id" serial PRIMARY KEY NOT NULL,
-	"name_id" integer NOT NULL,
-	"variant_id" integer,
-	"creator_id" integer,
+	"detail_id" integer NOT NULL,
+	"date" date,
+	"created_at" timestamp with time zone DEFAULT now(),
+	"updated_at" timestamp with time zone DEFAULT now(),
 	"trashed_at" timestamp with time zone,
 	"trashed_by" integer
 );
 --> statement-breakpoint
-CREATE TABLE IF NOT EXISTS "exercise_info_properties" (
-	"exercise_info_id" integer NOT NULL,
-	"property_id" integer NOT NULL,
-	"value" text,
-	CONSTRAINT "exercise_info_properties_exercise_info_id_property_id_pk" PRIMARY KEY("exercise_info_id","property_id")
+CREATE TABLE IF NOT EXISTS "exercise_details" (
+	"id" serial PRIMARY KEY NOT NULL,
+	"name_id" integer NOT NULL,
+	"variant_id" integer,
+	"creator_id" integer,
+	"created_at" timestamp with time zone DEFAULT now(),
+	"updated_at" timestamp with time zone DEFAULT now(),
+	"trashed_at" timestamp with time zone,
+	"trashed_by" integer
 );
 --> statement-breakpoint
-CREATE TABLE IF NOT EXISTS "properties_for_exercise_info" (
+CREATE TABLE IF NOT EXISTS "exercise_detail_properties" (
+	"detail_id" integer NOT NULL,
+	"property_id" integer NOT NULL,
+	"value" text,
+	CONSTRAINT "exercise_detail_properties_detail_id_property_id_pk" PRIMARY KEY("detail_id","property_id")
+);
+--> statement-breakpoint
+CREATE TABLE IF NOT EXISTS "properties_for_exercise_details" (
 	"id" serial PRIMARY KEY NOT NULL,
 	"name" text NOT NULL,
 	"data_type" text NOT NULL,
-	CONSTRAINT "properties_for_exercise_info_name_unique" UNIQUE("name")
+	CONSTRAINT "properties_for_exercise_details_name_unique" UNIQUE("name")
 );
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "exercise_names" (
@@ -155,37 +161,37 @@ EXCEPTION
 END $$;
 --> statement-breakpoint
 DO $$ BEGIN
- ALTER TABLE "user_exercises" ADD CONSTRAINT "user_exercises_info_id_exercise_info_id_fk" FOREIGN KEY ("info_id") REFERENCES "exercise_info"("id") ON DELETE cascade ON UPDATE no action;
+ ALTER TABLE "user_exercises" ADD CONSTRAINT "user_exercises_detail_id_exercise_details_id_fk" FOREIGN KEY ("detail_id") REFERENCES "exercise_details"("id") ON DELETE cascade ON UPDATE no action;
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;
 --> statement-breakpoint
 DO $$ BEGIN
- ALTER TABLE "exercise_info" ADD CONSTRAINT "exercise_info_name_id_exercise_names_id_fk" FOREIGN KEY ("name_id") REFERENCES "exercise_names"("id") ON DELETE cascade ON UPDATE no action;
+ ALTER TABLE "exercise_details" ADD CONSTRAINT "exercise_details_name_id_exercise_names_id_fk" FOREIGN KEY ("name_id") REFERENCES "exercise_names"("id") ON DELETE cascade ON UPDATE no action;
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;
 --> statement-breakpoint
 DO $$ BEGIN
- ALTER TABLE "exercise_info" ADD CONSTRAINT "exercise_info_variant_id_exercise_name_variants_id_fk" FOREIGN KEY ("variant_id") REFERENCES "exercise_name_variants"("id") ON DELETE cascade ON UPDATE no action;
+ ALTER TABLE "exercise_details" ADD CONSTRAINT "exercise_details_variant_id_exercise_name_variants_id_fk" FOREIGN KEY ("variant_id") REFERENCES "exercise_name_variants"("id") ON DELETE set null ON UPDATE no action;
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;
 --> statement-breakpoint
 DO $$ BEGIN
- ALTER TABLE "exercise_info" ADD CONSTRAINT "exercise_info_creator_id_users_id_fk" FOREIGN KEY ("creator_id") REFERENCES "users"("id") ON DELETE cascade ON UPDATE no action;
+ ALTER TABLE "exercise_details" ADD CONSTRAINT "exercise_details_creator_id_users_id_fk" FOREIGN KEY ("creator_id") REFERENCES "users"("id") ON DELETE cascade ON UPDATE no action;
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;
 --> statement-breakpoint
 DO $$ BEGIN
- ALTER TABLE "exercise_info_properties" ADD CONSTRAINT "exercise_info_properties_exercise_info_id_exercise_info_id_fk" FOREIGN KEY ("exercise_info_id") REFERENCES "exercise_info"("id") ON DELETE cascade ON UPDATE no action;
+ ALTER TABLE "exercise_detail_properties" ADD CONSTRAINT "exercise_detail_properties_detail_id_exercise_details_id_fk" FOREIGN KEY ("detail_id") REFERENCES "exercise_details"("id") ON DELETE cascade ON UPDATE no action;
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;
 --> statement-breakpoint
 DO $$ BEGIN
- ALTER TABLE "exercise_info_properties" ADD CONSTRAINT "exercise_info_properties_property_id_properties_for_exercise_info_id_fk" FOREIGN KEY ("property_id") REFERENCES "properties_for_exercise_info"("id") ON DELETE cascade ON UPDATE no action;
+ ALTER TABLE "exercise_detail_properties" ADD CONSTRAINT "exercise_detail_properties_property_id_properties_for_exercise_details_id_fk" FOREIGN KEY ("property_id") REFERENCES "properties_for_exercise_details"("id") ON DELETE cascade ON UPDATE no action;
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;
