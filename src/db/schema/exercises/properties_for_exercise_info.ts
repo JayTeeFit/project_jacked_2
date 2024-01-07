@@ -10,9 +10,14 @@ export const propertiesForExerciseInfo = pgTable(
   }
 );
 
-export const preopertiesForExerciseInfoRelations = relations(
+export const propertiesForExerciseInfoRelations = relations(
   propertiesForExerciseInfo,
   ({ many }) => ({
     exerciseInfoProperties: many(exerciseInfoProperties),
   })
 );
+
+export type PropertyForExerciseInfoSchema =
+  typeof propertiesForExerciseInfo.$inferSelect;
+export type NewPropertyForExerciseInfoSchema =
+  typeof propertiesForExerciseInfo.$inferInsert;

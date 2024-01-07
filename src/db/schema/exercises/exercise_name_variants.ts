@@ -28,3 +28,8 @@ export const exerciseNameVariantsRelations = relations(
     }),
   })
 );
+
+export type ExerciseNameVariantSchema =
+  typeof exerciseNameVariants.$inferSelect;
+export type NewExerciseNameVariantSchema =
+  typeof exerciseNameVariants.$inferInsert;

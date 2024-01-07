@@ -13,3 +13,6 @@ export const propertiesForSetsRelations = relations(
     setProperties: many(setProperties),
   })
 );
+
+export type PropertyForSetSchema = typeof propertiesForSets.$inferSelect;
+export type NewPropertyForSchema = typeof propertiesForSets.$inferInsert;

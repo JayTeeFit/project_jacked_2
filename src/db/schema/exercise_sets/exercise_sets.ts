@@ -44,5 +44,5 @@ export const exerciseSetsRelations = relations(
   })
 );
 
-export type UserExerciseSchema = typeof userExercises.$inferSelect;
-export type NewUserExerciseSchema = typeof userExercises.$inferInsert;
+export type ExerciseSetSchema = typeof exerciseSets.$inferSelect;
+export type NewExerciseSetSchema = typeof exerciseSets.$inferInsert;

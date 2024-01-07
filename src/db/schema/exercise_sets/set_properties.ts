@@ -29,3 +29,6 @@ export const setPropertiesRelations = relations(setProperties, ({ one }) => ({
     references: [propertiesForSets.id],
   }),
 }));
+
+export type SetPropertySchema = typeof setProperties.$inferSelect;
+export type NewSetPropertySchema = typeof setProperties.$inferInsert;

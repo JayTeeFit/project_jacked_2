@@ -40,3 +40,6 @@ export const exerciseInfoRelations = relations(
     properties: many(exerciseInfoProperties),
   })
 );
+
+export type ExerciseInfoSchema = typeof exerciseInfo.$inferSelect;
+export type NewExerciseInfoSchema = typeof exerciseInfo.$inferInsert;

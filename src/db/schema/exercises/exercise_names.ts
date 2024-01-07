@@ -41,3 +41,6 @@ export const exerciseNamesRelations = relations(
     variants: many(exerciseNameVariants),
   })
 );
+
+export type ExerciseNameSchema = typeof exerciseNames.$inferSelect;
+export type NewExerciseNameSchema = typeof exerciseNames.$inferInsert;

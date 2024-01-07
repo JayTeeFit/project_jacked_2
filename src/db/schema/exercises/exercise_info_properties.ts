@@ -32,3 +32,8 @@ export const exerciseInfoPropertiesRelations = relations(
     }),
   })
 );
+
+export type ExerciseInfoPropertySchema =
+  typeof exerciseInfoProperties.$inferSelect;
+export type NewExerciseInfoPropertySchema =
+  typeof exerciseInfoProperties.$inferInsert;
