@@ -20,7 +20,7 @@ export const createdAndUpdatedAtColumns = () => ({
 });
 
 export const listOrderColumn = () => ({
-  listOrder: integer("list_order"),
+  listOrder: integer("list_order").notNull(),
 });
 
 export const dynamicPropertiesSchema = () => ({

@@ -24,7 +24,7 @@ export const setPropertiesRelations = relations(setProperties, ({ one }) => ({
     fields: [setProperties.setId],
     references: [exerciseSets.id],
   }),
-  info: one(propertiesForSets, {
+  property: one(propertiesForSets, {
     fields: [setProperties.propertyId],
     references: [propertiesForSets.id],
   }),

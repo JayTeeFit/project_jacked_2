@@ -8,6 +8,13 @@
       "when": 1704608591947,
       "tag": "0000_tricky_omega_sentinel",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "5",
+      "when": 1704694159701,
+      "tag": "0001_motionless_angel",
+      "breakpoints": true
     }
   ]
 }
