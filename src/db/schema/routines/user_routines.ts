@@ -2,6 +2,7 @@ import { relations } from "drizzle-orm";
 import { boolean, integer, pgTable, serial } from "drizzle-orm/pg-core";
 import { userExercises } from "src/db/schema/exercises";
 import { routineDetails } from "src/db/schema/routines/routine_details";
+import { userTrainingBlocks } from "src/db/schema/training_blocks/user_training_blocks";
 import { users } from "src/db/schema/users";
 import {
   trashableObjectColumns,
@@ -19,9 +20,9 @@ export const userRoutines = pgTable("user_routines", {
       onDelete: "restrict",
     })
     .notNull(),
-  // trainingBlockId: integer("training_block_id")
-  //   .references(() => userTrainingBlocks.id, { onDelete: "cascade" })
-  //   .notNull(),
+  trainingBlockId: integer("training_block_id")
+    .references(() => userTrainingBlocks.id, { onDelete: "cascade" })
+    .notNull(),
   isExercise: boolean("is_exercise").default(false),
   ...listOrderColumn(),
   ...createdAndUpdatedAtColumns(),
@@ -39,10 +40,10 @@ export const userRoutinesRelations = relations(
       fields: [userRoutines.detailId],
       references: [routineDetails.id],
     }),
-    // trainingBlock: one(userTrainingBlocks, {
-    //   fields: [userRoutines.trainingBlockId],
-    //   references: [userTrainingBlocks.id],
-    // }),
+    trainingBlock: one(userTrainingBlocks, {
+      fields: [userRoutines.trainingBlockId],
+      references: [userTrainingBlocks.id],
+    }),
     exercises: many(userExercises),
   })
 );
