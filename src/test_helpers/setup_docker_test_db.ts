@@ -4,6 +4,7 @@ import { Client } from "pg";
 import { PostgreSqlContainer } from "@testcontainers/postgresql";
 import { drizzle } from "drizzle-orm/node-postgres";
 import { migrate } from "drizzle-orm/node-postgres/migrator";
+import * as schema from "src/db/schema";
 
 export const DEFAULT_TEST_TIMEOUT = 60 * 1000;
 
@@ -29,10 +30,12 @@ export async function setupDockerTestDb() {
 
   console.log("connecting to db...");
   await client.connect();
-  const db = drizzle(client);
+  const db = drizzle(client, { schema });
 
   console.log("starting migration...");
   await migrate(db, { migrationsFolder: "drizzle" });
 
-  return { container, db, client };
+  global.db = db;
+
+  return { container, client };
 }

@@ -1,5 +1,4 @@
 import { StartedPostgreSqlContainer } from "@testcontainers/postgresql";
-import { NodePgDatabase } from "drizzle-orm/node-postgres/driver";
 import { Client } from "pg";
 import { NewUserSchema, users } from "src/db/schema";
 import {
@@ -9,11 +8,10 @@ import {
 
 describe("Users", () => {
   let container: StartedPostgreSqlContainer;
-  let db: NodePgDatabase<Record<string, never>>;
   let client: Client;
 
   beforeAll(async () => {
-    ({ container, db, client } = await setupDockerTestDb());
+    ({ container, client } = await setupDockerTestDb());
   }, DEFAULT_TEST_TIMEOUT);
 
   it("can insert a user", async () => {

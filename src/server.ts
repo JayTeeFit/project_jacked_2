@@ -1,13 +1,13 @@
 import "src/config/index";
-import "src/utils/globals";
+import "src/utils/error_handling_helpers";
 import "src/types/process_env";
+import "src/db";
 import express, { Express, Request, Response } from "express";
 import { users, NewUserSchema } from "src/db/schema/users/users";
 import {
   userProfiles,
   NewUserProfileSchema,
 } from "src/db/schema/users/user_profiles";
-import { db } from "src/db";
 import { eq } from "drizzle-orm";
 
 const app: Express = express();
