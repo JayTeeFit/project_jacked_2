@@ -17,11 +17,11 @@ const development: DbConfig = {
 };
 
 const test: DbConfig = {
-  user: process.env.DB_TEST_USER || "postgres",
-  password: process.env.DB_TEST_PASSWORD || "postgres",
+  user: process.env.DB_TEST_USER || "test",
+  password: process.env.DB_TEST_PASSWORD || "test",
   host: process.env.DB_TEST_HOST || "localhost",
   port: parseInt(process.env.DB_TEST_PORT || "5433"),
-  database: process.env.DB_TEST_DATABASE || "postgres",
+  database: process.env.DB_TEST_DATABASE || "test",
 };
 
 const dbConfigs: DbConfigs = {
