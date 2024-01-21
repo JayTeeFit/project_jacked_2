@@ -66,10 +66,10 @@ export function dbTestSuite(suiteName: string, testBlock: () => void) {
       await db.execute(sql`DROP SCHEMA public CASCADE;`);
       await db.execute(sql`DROP SCHEMA drizzle CASCADE;`);
       await db.execute(sql`CREATE SCHEMA public;`);
-      await db.execute(sql`GRANT ALL ON SCHEMA public TO test`);
-      await db.execute(sql`GRANT ALL ON SCHEMA public TO public`);
+      await db.execute(sql`GRANT ALL ON SCHEMA public TO test;`);
+      await db.execute(sql`GRANT ALL ON SCHEMA public TO public;`);
       await db.execute(
-        sql`COMMENT ON SCHEMA public IS 'standard public schema'`
+        sql`COMMENT ON SCHEMA public IS 'standard public schema';`
       );
       await client.end();
     });
