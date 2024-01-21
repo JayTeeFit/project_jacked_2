@@ -22,6 +22,17 @@ export type UserCreateResult = {
   userProfileSchema: UserProfileSchema | null;
 };
 
+export type UserUpdateResult = {
+  error: string | null;
+  userSchema: UserSchema | null;
+};
+
+export type UserRelations = {
+  profile?: UserProfile | null;
+};
+
+export type UserSchemaWithRelations = UserSchema & UserRelations;
+
 export default class User {
   protected _id: number;
   protected _username: string;
@@ -32,16 +43,11 @@ export default class User {
   protected _premiumness: Premiumness;
   protected _trashedAt: Date | null;
   protected _trashedBy: number | null;
-  protected _updatedAt: Date | null;
-  protected _createdAt: Date | null;
-  protected _profile: UserProfile | null = null;
+  protected _updatedAt: Date;
+  protected _createdAt: Date;
+  protected _profile: UserProfile | null;
 
-  constructor(
-    attributes: UserSchema,
-    relations?: {
-      profile?: UserProfile;
-    }
-  ) {
+  constructor(attributes: UserSchemaWithRelations) {
     this._id = attributes.id;
     this._username = attributes.username;
     this._email = attributes.email;
@@ -53,9 +59,7 @@ export default class User {
     this._trashedBy = attributes.trashedBy;
     this._updatedAt = attributes.updatedAt;
     this._createdAt = attributes.createdAt;
-    if (relations?.profile) {
-      this._profile = relations.profile;
-    }
+    this._profile = attributes.profile || null;
   }
 
   /**
@@ -103,12 +107,37 @@ export default class User {
     const profile = new UserProfile(
       result.userProfileSchema as UserProfileSchema
     );
-    const user = new User(result.userSchema as UserSchema, { profile });
+
+    const user = new User({ ...(result.userSchema as UserSchema), profile });
 
     return dbModelResponse({ value: user });
   }
 
-  async fetchProfileAsync() {
+  static async findUserById(id: number): Promise<User | null> {
+    const result = await db.query.users.findFirst({ where: eq(users.id, id) });
+
+    if (!result) {
+      return null;
+    }
+
+    const userSchema: UserSchemaWithRelations = {
+      ...result,
+    };
+
+    return new User(userSchema);
+  }
+
+  static _userCreateResult(
+    result: Partial<UserCreateResult>
+  ): UserCreateResult {
+    return {
+      error: result.error || null,
+      userSchema: result.userSchema || null,
+      userProfileSchema: result.userProfileSchema || null,
+    };
+  }
+
+  async profileAsync() {
     if (this.profile) {
       return this.profile;
     }
@@ -124,14 +153,54 @@ export default class User {
     return profile;
   }
 
-  static _userCreateResult(
-    result: Partial<UserCreateResult>
-  ): UserCreateResult {
+  async updateUser(
+    attributes: Partial<Omit<UserSchema, "id">>
+  ): Promise<DbUpsertModelResponse<User>> {
+    const updateAttr = { ...attributes };
+    updateAttr.updatedAt = new Date(Date.now());
+
+    if (attributes.email) {
+      updateAttr.email = attributes.email;
+    }
+
+    let userSchema: UserSchema;
+
+    const result = await db.transaction(async (tx) => {
+      try {
+        [userSchema] = await tx
+          .update(users)
+          .set(updateAttr)
+          .where(eq(users.id, this.id))
+          .returning();
+      } catch (err) {
+        return this._userUpdateResult({
+          error: getErrorMessage(err) || "unkown error",
+        });
+      }
+      return this._userUpdateResult({ userSchema });
+    });
+
+    if (result.error) {
+      return dbModelResponse({ errorMessage: result.error });
+    }
+
+    this._updateUserProperties(result.userSchema as UserSchema);
+
+    return dbModelResponse({ value: this });
+  }
+
+  _userUpdateResult(result: Partial<UserCreateResult>): UserUpdateResult {
     return {
       error: result.error || null,
       userSchema: result.userSchema || null,
-      userProfileSchema: result.userProfileSchema || null,
     };
+  }
+
+  _updateUserProperties(properties: UserSchema) {
+    Object.entries(properties).forEach(([property, value]) => {
+      // @ts-ignore
+      this[property] = value;
+    });
   }
 
   // Getters
@@ -182,15 +251,58 @@ export default class User {
   /**
    * Returns the user profile for this user if it has been pre-fetched, null otherwise
    * @remarks
-   * Synchronous getter, will not fetch data from db. If you wish to fetch use fetchProfileAsync() instead
+   * You should use profileAsync() unless you know it will exist, since it calls this before querying the db
    */
   public get profile() {
     return this._profile;
   }
 
   // Setters
-
   public set profile(profile: UserProfile | null) {
     this._profile = profile;
+  }
+
+  public set id(id: number) {
+    this._id = id;
+  }
+
+  public set username(username: string) {
+    this._username = username;
+  }
+
+  public set email(email: string) {
+    this._email = email;
+  }
+
+  public set isActive(isActive: boolean) {
+    this._isActive = isActive;
+  }
+
+  public set isClaimed(isClaimed: boolean) {
+    this._isClaimed = isClaimed;
+  }
+
+  public set isAdmin(isAdmin: boolean) {
+    this._isAdmin = isAdmin;
+  }
+
+  public set premiumness(premiumness: Premiumness) {
+    this._premiumness = premiumness;
+  }
+
+  public set trashedAt(time: Date | null) {
+    this._trashedAt = time;
+  }
+
+  public set trashedBy(time: number | null) {
+    this._trashedBy = time;
+  }
+
+  public set updatedAt(time: Date) {
+    this._updatedAt = time;
+  }
+
+  public set createdAt(time: Date) {
+    this._createdAt = time;
   }
 }

@@ -1,4 +1,4 @@
-import { NewUserSchema, users } from "src/db/schema/users/users";
+import { NewUserSchema, UserSchema, users } from "src/db/schema/users/users";
 import User from "src/models/user/user";
 import UserProfile from "src/models/user/user_profile";
 import { dbTestSuite } from "src/test_helpers/setup_server_test_suite";
@@ -18,15 +18,23 @@ dbTestSuite("UserModel", () => {
     aboutMe: "Founder of this beautiful application",
   };
 
-  async function createDefaultUser(withProfile?: boolean) {
-    const user = await User.create(defaultTestUserSchema, {
+  async function createDefaultUser(
+    addUserProperties: Partial<NewUserSchema>,
+    withProfile?: boolean
+  ) {
+    const userSchema = {
+      ...defaultTestUserSchema,
+      ...addUserProperties,
+    };
+    const user = await User.create(userSchema, {
       profileInfo: withProfile ? defaultTestUserProfileSchema : undefined,
     });
     return user.value;
   }
+
   suite("Create", () => {
     test("can create a user", async () => {
-      const userOrNull = await createDefaultUser(false);
+      const userOrNull = await createDefaultUser({}, false);
 
       expect(userOrNull).not.toBeNull();
 
@@ -37,7 +45,7 @@ dbTestSuite("UserModel", () => {
     });
 
     test("can create a user with a profile", async () => {
-      const userOrNull = await createDefaultUser(true);
+      const userOrNull = await createDefaultUser({}, true);
 
       expect(userOrNull).not.toBeNull();
 
@@ -48,7 +56,7 @@ dbTestSuite("UserModel", () => {
     });
 
     test("enforces unique emails", async () => {
-      await createDefaultUser(false);
+      await createDefaultUser({}, false);
       const newUser: NewUserSchema = {
         username: "test",
         email: defaultTestUserSchema.email,
@@ -74,7 +82,7 @@ dbTestSuite("UserModel", () => {
     });
 
     test("enforces case insensitive unique usernames", async () => {
-      await createDefaultUser(false);
+      await createDefaultUser({}, false);
       const newUser: NewUserSchema = {
         username: defaultTestUserSchema.username.toUpperCase(),
         email: "1" + defaultTestUserSchema.email,
@@ -85,31 +93,63 @@ dbTestSuite("UserModel", () => {
     });
   });
 
-  suite("fetchProfileAsync", () => {
+  suite("profileAsync", () => {
     test("returns profile synchronously if pre-fetched", async () => {
       const dbSelectSpy = Sinon.spy(db, "select");
-      const user = await createDefaultUser(true);
+      const user = await createDefaultUser({}, true);
       expect(user).not.toBeNull();
 
-      const profile = await user?.fetchProfileAsync();
+      const profile = await user?.profileAsync();
       Sinon.assert.notCalled(dbSelectSpy);
     });
 
     test("fetches profile async", async () => {
-      const createdUser = await createDefaultUser(true);
+      const createdUser = await createDefaultUser({}, true);
       expect(createdUser).not.toBeNull();
 
-      const userSchema = await db.query.users.findFirst({
-        where: eq(users.id, createdUser!.id),
-      });
+      const user = await User.findUserById(createdUser!.id);
 
-      const user = userSchema ? new User(userSchema) : null;
       expect(user).not.toBeNull();
       expect(user!.profile).toBeNull();
 
-      const asyncProfile = await user!.fetchProfileAsync();
+      const asyncProfile = await user!.profileAsync();
       expect(asyncProfile).not.toBeNull();
       expect(asyncProfile).toEqual(user!.profile);
+    });
+  });
+
+  suite("UpdateUser", () => {
+    test("can update a user", async () => {
+      const user = await createDefaultUser({}, false);
+      expect(user).not.toBeNull();
+
+      const newUsername = "newUsername";
+      const updateAttr: Partial<UserSchema> = {
+        username: newUsername,
+      };
+
+      await user!.updateUser(updateAttr);
+      const queriedUser = await User.findUserById(user!.id);
+
+      expect(user!.username).toBe(newUsername);
+      expect(queriedUser!.username).toBe(newUsername);
+    });
+
+    test("updates updatedAt field", async () => {
+      const newTime = new Date(Date.now() - 5 * 24 * 60 * 60 * 1000);
+      console.log(newTime);
+
+      const user = await createDefaultUser({ updatedAt: newTime }, false);
+      expect(user).not.toBeNull();
+
+      const newUsername = "newUsername";
+      const updateAttr: Partial<UserSchema> = {
+        username: newUsername,
+      };
+
+      await user!.updateUser(updateAttr);
+
+      expect(user?.updatedAt.getTime()).toBeGreaterThan(newTime.getTime());
     });
   });
 });

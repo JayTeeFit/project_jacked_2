@@ -7,11 +7,15 @@ export const trashableObjectColumns = () => ({
 });
 
 export const createdAtColumn = () => ({
-  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .defaultNow()
+    .notNull(),
 });
 
 export const updatedAtColumn = () => ({
-  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true })
+    .defaultNow()
+    .notNull(),
 });
 
 export const createdAndUpdatedAtColumns = () => ({
