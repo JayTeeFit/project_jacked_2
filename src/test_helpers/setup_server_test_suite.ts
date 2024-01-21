@@ -50,7 +50,7 @@ export async function setupTestDb(
 }
 
 export function dbTestSuite(suiteName: string, testBlock: () => void) {
-  describe(suiteName, () => {
+  suite(suiteName, () => {
     let container: StartedPostgreSqlContainer;
     let client: Client;
 

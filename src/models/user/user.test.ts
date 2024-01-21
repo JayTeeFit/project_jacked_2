@@ -1,5 +1,6 @@
 import { NewUserSchema } from "src/db/schema";
 import User from "src/models/user/user";
+import UserProfile from "src/models/user/user_profile";
 import { dbTestSuite } from "src/test_helpers/setup_server_test_suite";
 
 dbTestSuite("UserModel", () => {
@@ -21,51 +22,64 @@ dbTestSuite("UserModel", () => {
     });
     return user.value;
   }
+  suite("Create", () => {
+    test("can create a user", async () => {
+      const userOrNull = await createDefaultUser(false);
 
-  it("can create a user", async () => {
-    const userOrNull = await createDefaultUser(true);
+      expect(userOrNull).not.toBeNull();
 
-    expect(userOrNull).not.toBeNull();
+      const user = userOrNull as User;
 
-    const user = userOrNull as User;
+      expect(user.email).toBe(defaultTestUserSchema.email);
+      expect(user.username).toBe(defaultTestUserSchema.username);
+    });
 
-    expect(user.email).toBe(defaultTestUserSchema.email);
-    expect(user.username).toBe(defaultTestUserSchema.username);
+    test("can create a user with a profile", async () => {
+      const userOrNull = await createDefaultUser(true);
+
+      expect(userOrNull).not.toBeNull();
+
+      const user = userOrNull as User;
+
+      expect(user.profile).not.toBeNull();
+      expect(user.profile).toBeInstanceOf(UserProfile);
+    });
+
+    test("enforces unique emails", async () => {
+      await createDefaultUser(false);
+      const newUser: NewUserSchema = {
+        username: "test",
+        email: defaultTestUserSchema.email,
+      };
+
+      const userResponse = await User.create(newUser);
+      expect(userResponse.value).toBeNull();
+      expect(userResponse.errorMessage).not.toBeNull();
+    });
+
+    test("enforces lowercase emails", async () => {
+      const email = defaultTestUserSchema.email.toUpperCase();
+      const newUser: NewUserSchema = {
+        username: "test",
+        email,
+      };
+
+      const userResponse = await User.create(newUser);
+      const userOrNull = userResponse.value;
+
+      expect(userOrNull).not.toBeNull();
+      expect(userOrNull!.email).toBe(email.toLowerCase());
+    });
+
+    test("enforces case insensitive unique usernames", async () => {
+      await createDefaultUser(false);
+      const newUser: NewUserSchema = {
+        username: defaultTestUserSchema.username.toUpperCase(),
+        email: "1" + defaultTestUserSchema.email,
+      };
+
+      const userResponse = await User.create(newUser);
+      expect(userResponse.value).toBeNull();
+    });
   });
-
-  it("enforces unique emails", async () => {
-    await createDefaultUser(true);
-    const newUser: NewUserSchema = {
-      username: "test",
-      email: defaultTestUserSchema.email,
-    };
-
-    const userResponse = await User.create(newUser);
-    expect(userResponse.value).toBeNull();
-    expect(userResponse.errorMessage).not.toBeNull();
-  });
-
-  it("enforces lowercase emails", async () => {
-    const email = defaultTestUserSchema.email.toUpperCase();
-    const newUser: NewUserSchema = {
-      username: "test",
-      email,
-    };
-
-    const userResponse = await User.create(newUser);
-    const userOrNull = userResponse.value;
-
-    expect(userOrNull).not.toBeNull();
-    expect(userOrNull!.email).toBe(email.toLowerCase());
-  });
-
-  // it("enforces unique usernames case insensitive", async () => {
-  //   const newUser: NewUserSchema = {
-  //     username: defaultTestUserSchema.username.toUpperCase(),
-  //     email: "1" + defaultTestUserSchema.email,
-  //   };
-
-  //   const userOrNull = await User.create(newUser);
-  //   expect(userOrNull).toBeNull();
-  // });
 });
