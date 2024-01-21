@@ -1,4 +1,10 @@
 {
   "extends": "./tsconfig",
-  "exclude": ["**/*.test.*", "jest.config.ts", "jest_console_fix.ts"]
+  "exclude": [
+    "**/*.test.*",
+    "**/test_helpers/*",
+    "jest.config.ts",
+    "jest_console_fix.ts",
+    "jest_aliases.ts"
+  ]
 }
