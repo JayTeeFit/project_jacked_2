@@ -1,10 +1,18 @@
-import { pgTable, serial, varchar, boolean, text } from "drizzle-orm/pg-core";
+import {
+  pgTable,
+  serial,
+  varchar,
+  boolean,
+  text,
+  unique,
+  uniqueIndex,
+} from "drizzle-orm/pg-core";
 import {
   trashableObjectColumns,
   createdAndUpdatedAtColumns,
 } from "src/db/schema/utils/schema_helpers";
 import { premiumnessConfigEnum } from "src/db/schema/types/user";
-import { relations } from "drizzle-orm";
+import { relations, sql } from "drizzle-orm";
 import { userProfiles } from "src/db/schema/users/user_profiles";
 import { userAddresses } from "src/db/schema/users/user_addresses";
 import { userExercises } from "src/db/schema/exercises/user_exercises";
@@ -14,16 +22,16 @@ import { exerciseVariantNames } from "src/db/schema/exercises/exercise_variant_n
 
 export const users = pgTable("users", {
   id: serial("id").primaryKey(),
-  username: varchar("username", { length: 15 }).unique().notNull(),
+  username: varchar("username", { length: 15 }).notNull(),
   email: varchar("email", { length: 256 }).unique().notNull(),
-  isActive: boolean("is_active").default(true),
-  isClaimed: boolean("is_claimed").default(false),
-  isAdmin: boolean("is_admin").default(false),
+  isActive: boolean("is_active").default(true).notNull(),
+  isClaimed: boolean("is_claimed").default(false).notNull(),
+  isAdmin: boolean("is_admin").default(false).notNull(),
   premiumness: text("premiumness", {
     enum: [...premiumnessConfigEnum],
   })
-    .notNull()
-    .default("free"),
+    .default("free")
+    .notNull(),
   ...createdAndUpdatedAtColumns(),
   ...trashableObjectColumns(),
 });

@@ -1,5 +1,5 @@
 {
-  "id": "c5c2a340-03d1-4226-b648-27133291dbf3",
+  "id": "da060ed2-3712-4fbf-9d17-fac8f58e6db9",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "5",
   "dialect": "pg",
@@ -30,21 +30,21 @@
           "name": "is_active",
           "type": "boolean",
           "primaryKey": false,
-          "notNull": false,
+          "notNull": true,
           "default": true
         },
         "is_claimed": {
           "name": "is_claimed",
           "type": "boolean",
           "primaryKey": false,
-          "notNull": false,
+          "notNull": true,
           "default": false
         },
         "is_admin": {
           "name": "is_admin",
           "type": "boolean",
           "primaryKey": false,
-          "notNull": false,
+          "notNull": true,
           "default": false
         },
         "premiumness": {
@@ -85,13 +85,6 @@
       "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
-        "users_username_unique": {
-          "name": "users_username_unique",
-          "nullsNotDistinct": false,
-          "columns": [
-            "username"
-          ]
-        },
         "users_email_unique": {
           "name": "users_email_unique",
           "nullsNotDistinct": false,
@@ -324,7 +317,7 @@
           "name": "list_order",
           "type": "integer",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true
         }
       },
       "indexes": {},
@@ -467,11 +460,17 @@
           "primaryKey": false,
           "notNull": true
         },
-        "date": {
-          "name": "date",
-          "type": "date",
+        "routine_id": {
+          "name": "routine_id",
+          "type": "integer",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true
+        },
+        "list_order": {
+          "name": "list_order",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
         },
         "created_at": {
           "name": "created_at",
@@ -521,6 +520,19 @@
           "tableTo": "exercise_details",
           "columnsFrom": [
             "detail_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "no action"
+        },
+        "user_exercises_routine_id_user_routines_id_fk": {
+          "name": "user_exercises_routine_id_user_routines_id_fk",
+          "tableFrom": "user_exercises",
+          "tableTo": "user_routines",
+          "columnsFrom": [
+            "routine_id"
           ],
           "columnsTo": [
             "id"
@@ -917,6 +929,509 @@
           "columns": [
             "value",
             "creator_id"
+          ]
+        }
+      }
+    },
+    "user_routines": {
+      "name": "user_routines",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "detail_id": {
+          "name": "detail_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "training_block_id": {
+          "name": "training_block_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "is_exercise": {
+          "name": "is_exercise",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false,
+          "default": false
+        },
+        "list_order": {
+          "name": "list_order",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        },
+        "trashed_at": {
+          "name": "trashed_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "trashed_by": {
+          "name": "trashed_by",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "user_routines_user_id_users_id_fk": {
+          "name": "user_routines_user_id_users_id_fk",
+          "tableFrom": "user_routines",
+          "tableTo": "users",
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "user_routines_detail_id_routine_details_id_fk": {
+          "name": "user_routines_detail_id_routine_details_id_fk",
+          "tableFrom": "user_routines",
+          "tableTo": "routine_details",
+          "columnsFrom": [
+            "detail_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "no action"
+        },
+        "user_routines_training_block_id_user_training_blocks_id_fk": {
+          "name": "user_routines_training_block_id_user_training_blocks_id_fk",
+          "tableFrom": "user_routines",
+          "tableTo": "user_training_blocks",
+          "columnsFrom": [
+            "training_block_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "routine_details": {
+      "name": "routine_details",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "creator_id": {
+          "name": "creator_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        },
+        "trashed_at": {
+          "name": "trashed_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "trashed_by": {
+          "name": "trashed_by",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "routine_details_creator_id_users_id_fk": {
+          "name": "routine_details_creator_id_users_id_fk",
+          "tableFrom": "routine_details",
+          "tableTo": "users",
+          "columnsFrom": [
+            "creator_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "routine_detail_properties": {
+      "name": "routine_detail_properties",
+      "schema": "",
+      "columns": {
+        "detail_id": {
+          "name": "detail_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "property_id": {
+          "name": "property_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "value": {
+          "name": "value",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "routine_detail_properties_detail_id_routine_details_id_fk": {
+          "name": "routine_detail_properties_detail_id_routine_details_id_fk",
+          "tableFrom": "routine_detail_properties",
+          "tableTo": "routine_details",
+          "columnsFrom": [
+            "detail_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "routine_detail_properties_property_id_properties_for_routine_details_id_fk": {
+          "name": "routine_detail_properties_property_id_properties_for_routine_details_id_fk",
+          "tableFrom": "routine_detail_properties",
+          "tableTo": "properties_for_routine_details",
+          "columnsFrom": [
+            "property_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "routine_detail_properties_detail_id_property_id_pk": {
+          "name": "routine_detail_properties_detail_id_property_id_pk",
+          "columns": [
+            "detail_id",
+            "property_id"
+          ]
+        }
+      },
+      "uniqueConstraints": {}
+    },
+    "properties_for_routine_details": {
+      "name": "properties_for_routine_details",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "data_type": {
+          "name": "data_type",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "properties_for_routine_details_name_unique": {
+          "name": "properties_for_routine_details_name_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "name"
+          ]
+        }
+      }
+    },
+    "user_training_blocks": {
+      "name": "user_training_blocks",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "detail_id": {
+          "name": "detail_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "date": {
+          "name": "date",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "'1970-01-01'"
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        },
+        "trashed_at": {
+          "name": "trashed_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "trashed_by": {
+          "name": "trashed_by",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "user_training_blocks_user_id_users_id_fk": {
+          "name": "user_training_blocks_user_id_users_id_fk",
+          "tableFrom": "user_training_blocks",
+          "tableTo": "users",
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "user_training_blocks_detail_id_training_block_details_id_fk": {
+          "name": "user_training_blocks_detail_id_training_block_details_id_fk",
+          "tableFrom": "user_training_blocks",
+          "tableTo": "training_block_details",
+          "columnsFrom": [
+            "detail_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "training_block_details": {
+      "name": "training_block_details",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "creator_id": {
+          "name": "creator_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "training_block_details_creator_id_users_id_fk": {
+          "name": "training_block_details_creator_id_users_id_fk",
+          "tableFrom": "training_block_details",
+          "tableTo": "users",
+          "columnsFrom": [
+            "creator_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "training_block_detail_properties": {
+      "name": "training_block_detail_properties",
+      "schema": "",
+      "columns": {
+        "detail_id": {
+          "name": "detail_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "property_id": {
+          "name": "property_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "value": {
+          "name": "value",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "training_block_detail_properties_detail_id_training_block_details_id_fk": {
+          "name": "training_block_detail_properties_detail_id_training_block_details_id_fk",
+          "tableFrom": "training_block_detail_properties",
+          "tableTo": "training_block_details",
+          "columnsFrom": [
+            "detail_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "training_block_detail_properties_property_id_properties_for_training_block_details_id_fk": {
+          "name": "training_block_detail_properties_property_id_properties_for_training_block_details_id_fk",
+          "tableFrom": "training_block_detail_properties",
+          "tableTo": "properties_for_training_block_details",
+          "columnsFrom": [
+            "property_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "training_block_detail_properties_detail_id_property_id_pk": {
+          "name": "training_block_detail_properties_detail_id_property_id_pk",
+          "columns": [
+            "detail_id",
+            "property_id"
+          ]
+        }
+      },
+      "uniqueConstraints": {}
+    },
+    "properties_for_training_block_details": {
+      "name": "properties_for_training_block_details",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "data_type": {
+          "name": "data_type",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "properties_for_training_block_details_name_unique": {
+          "name": "properties_for_training_block_details_name_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "name"
           ]
         }
       }

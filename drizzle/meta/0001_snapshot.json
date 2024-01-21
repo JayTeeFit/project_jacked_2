@@ -1,6 +1,6 @@
 {
-  "id": "b63a66c4-c54c-4404-8d96-77bf631bbd34",
-  "prevId": "c5c2a340-03d1-4226-b648-27133291dbf3",
+  "id": "d29380e9-fb0e-4118-8782-753ec78d73da",
+  "prevId": "da060ed2-3712-4fbf-9d17-fac8f58e6db9",
   "version": "5",
   "dialect": "pg",
   "tables": {
@@ -30,21 +30,21 @@
           "name": "is_active",
           "type": "boolean",
           "primaryKey": false,
-          "notNull": false,
+          "notNull": true,
           "default": true
         },
         "is_claimed": {
           "name": "is_claimed",
           "type": "boolean",
           "primaryKey": false,
-          "notNull": false,
+          "notNull": true,
           "default": false
         },
         "is_admin": {
           "name": "is_admin",
           "type": "boolean",
           "primaryKey": false,
-          "notNull": false,
+          "notNull": true,
           "default": false
         },
         "premiumness": {
@@ -85,19 +85,12 @@
       "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
-        "users_username_unique": {
-          "name": "users_username_unique",
-          "nullsNotDistinct": false,
-          "columns": [
-            "username"
-          ]
-        },
         "users_email_unique": {
           "name": "users_email_unique",
-          "nullsNotDistinct": false,
           "columns": [
             "email"
-          ]
+          ],
+          "nullsNotDistinct": false
         }
       }
     },
@@ -148,25 +141,25 @@
         "user_profiles_user_id_users_id_fk": {
           "name": "user_profiles_user_id_users_id_fk",
           "tableFrom": "user_profiles",
-          "tableTo": "users",
           "columnsFrom": [
             "user_id"
           ],
+          "tableTo": "users",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "cascade"
         }
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
         "user_profiles_user_id_unique": {
           "name": "user_profiles_user_id_unique",
-          "nullsNotDistinct": false,
           "columns": [
             "user_id"
-          ]
+          ],
+          "nullsNotDistinct": false
         }
       }
     },
@@ -260,15 +253,15 @@
         "user_addresses_user_id_users_id_fk": {
           "name": "user_addresses_user_id_users_id_fk",
           "tableFrom": "user_addresses",
-          "tableTo": "users",
           "columnsFrom": [
             "user_id"
           ],
+          "tableTo": "users",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "cascade"
         }
       },
       "compositePrimaryKeys": {},
@@ -332,15 +325,15 @@
         "exercise_sets_exercise_id_user_exercises_id_fk": {
           "name": "exercise_sets_exercise_id_user_exercises_id_fk",
           "tableFrom": "exercise_sets",
-          "tableTo": "user_exercises",
           "columnsFrom": [
             "exercise_id"
           ],
+          "tableTo": "user_exercises",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "cascade"
         }
       },
       "compositePrimaryKeys": {},
@@ -374,28 +367,28 @@
         "set_properties_set_id_exercise_sets_id_fk": {
           "name": "set_properties_set_id_exercise_sets_id_fk",
           "tableFrom": "set_properties",
-          "tableTo": "exercise_sets",
           "columnsFrom": [
             "set_id"
           ],
+          "tableTo": "exercise_sets",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "cascade"
         },
         "set_properties_property_id_properties_for_sets_id_fk": {
           "name": "set_properties_property_id_properties_for_sets_id_fk",
           "tableFrom": "set_properties",
-          "tableTo": "properties_for_sets",
           "columnsFrom": [
             "property_id"
           ],
+          "tableTo": "properties_for_sets",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "cascade"
         }
       },
       "compositePrimaryKeys": {
@@ -438,10 +431,10 @@
       "uniqueConstraints": {
         "properties_for_sets_name_unique": {
           "name": "properties_for_sets_name_unique",
-          "nullsNotDistinct": false,
           "columns": [
             "name"
-          ]
+          ],
+          "nullsNotDistinct": false
         }
       }
     },
@@ -511,41 +504,41 @@
         "user_exercises_user_id_users_id_fk": {
           "name": "user_exercises_user_id_users_id_fk",
           "tableFrom": "user_exercises",
-          "tableTo": "users",
           "columnsFrom": [
             "user_id"
           ],
+          "tableTo": "users",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "cascade"
         },
         "user_exercises_detail_id_exercise_details_id_fk": {
           "name": "user_exercises_detail_id_exercise_details_id_fk",
           "tableFrom": "user_exercises",
-          "tableTo": "exercise_details",
           "columnsFrom": [
             "detail_id"
           ],
+          "tableTo": "exercise_details",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "restrict",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "restrict"
         },
         "user_exercises_routine_id_user_routines_id_fk": {
           "name": "user_exercises_routine_id_user_routines_id_fk",
           "tableFrom": "user_exercises",
-          "tableTo": "user_routines",
           "columnsFrom": [
             "routine_id"
           ],
+          "tableTo": "user_routines",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "cascade"
         }
       },
       "compositePrimaryKeys": {},
@@ -611,41 +604,41 @@
         "exercise_details_name_id_exercise_names_id_fk": {
           "name": "exercise_details_name_id_exercise_names_id_fk",
           "tableFrom": "exercise_details",
-          "tableTo": "exercise_names",
           "columnsFrom": [
             "name_id"
           ],
+          "tableTo": "exercise_names",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "cascade"
         },
         "exercise_details_variant_id_exercise_name_variants_id_fk": {
           "name": "exercise_details_variant_id_exercise_name_variants_id_fk",
           "tableFrom": "exercise_details",
-          "tableTo": "exercise_name_variants",
           "columnsFrom": [
             "variant_id"
           ],
+          "tableTo": "exercise_name_variants",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "set null",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "set null"
         },
         "exercise_details_creator_id_users_id_fk": {
           "name": "exercise_details_creator_id_users_id_fk",
           "tableFrom": "exercise_details",
-          "tableTo": "users",
           "columnsFrom": [
             "creator_id"
           ],
+          "tableTo": "users",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "cascade"
         }
       },
       "compositePrimaryKeys": {},
@@ -679,28 +672,28 @@
         "exercise_detail_properties_detail_id_exercise_details_id_fk": {
           "name": "exercise_detail_properties_detail_id_exercise_details_id_fk",
           "tableFrom": "exercise_detail_properties",
-          "tableTo": "exercise_details",
           "columnsFrom": [
             "detail_id"
           ],
+          "tableTo": "exercise_details",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "cascade"
         },
         "exercise_detail_properties_property_id_properties_for_exercise_details_id_fk": {
           "name": "exercise_detail_properties_property_id_properties_for_exercise_details_id_fk",
           "tableFrom": "exercise_detail_properties",
-          "tableTo": "properties_for_exercise_details",
           "columnsFrom": [
             "property_id"
           ],
+          "tableTo": "properties_for_exercise_details",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "cascade"
         }
       },
       "compositePrimaryKeys": {
@@ -743,10 +736,10 @@
       "uniqueConstraints": {
         "properties_for_exercise_details_name_unique": {
           "name": "properties_for_exercise_details_name_unique",
-          "nullsNotDistinct": false,
           "columns": [
             "name"
-          ]
+          ],
+          "nullsNotDistinct": false
         }
       }
     },
@@ -791,39 +784,39 @@
         "exercise_names_default_variant_id_exercise_name_variants_id_fk": {
           "name": "exercise_names_default_variant_id_exercise_name_variants_id_fk",
           "tableFrom": "exercise_names",
-          "tableTo": "exercise_name_variants",
           "columnsFrom": [
             "default_variant_id"
           ],
+          "tableTo": "exercise_name_variants",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "set null",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "set null"
         },
         "exercise_names_creator_id_users_id_fk": {
           "name": "exercise_names_creator_id_users_id_fk",
           "tableFrom": "exercise_names",
-          "tableTo": "users",
           "columnsFrom": [
             "creator_id"
           ],
+          "tableTo": "users",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "cascade"
         }
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
         "exercise_names_value_creator_id_unique": {
           "name": "exercise_names_value_creator_id_unique",
-          "nullsNotDistinct": true,
           "columns": [
             "value",
             "creator_id"
-          ]
+          ],
+          "nullsNotDistinct": true
         }
       }
     },
@@ -855,28 +848,28 @@
         "exercise_name_variants_variant_id_exercise_variant_names_id_fk": {
           "name": "exercise_name_variants_variant_id_exercise_variant_names_id_fk",
           "tableFrom": "exercise_name_variants",
-          "tableTo": "exercise_variant_names",
           "columnsFrom": [
             "variant_id"
           ],
+          "tableTo": "exercise_variant_names",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "cascade"
         },
         "exercise_name_variants_name_id_exercise_names_id_fk": {
           "name": "exercise_name_variants_name_id_exercise_names_id_fk",
           "tableFrom": "exercise_name_variants",
-          "tableTo": "exercise_names",
           "columnsFrom": [
             "name_id"
           ],
+          "tableTo": "exercise_names",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "cascade"
         }
       },
       "compositePrimaryKeys": {},
@@ -917,26 +910,26 @@
         "exercise_variant_names_creator_id_users_id_fk": {
           "name": "exercise_variant_names_creator_id_users_id_fk",
           "tableFrom": "exercise_variant_names",
-          "tableTo": "users",
           "columnsFrom": [
             "creator_id"
           ],
+          "tableTo": "users",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "cascade"
         }
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
         "exercise_variant_names_value_creator_id_unique": {
           "name": "exercise_variant_names_value_creator_id_unique",
-          "nullsNotDistinct": true,
           "columns": [
             "value",
             "creator_id"
-          ]
+          ],
+          "nullsNotDistinct": true
         }
       }
     },
@@ -958,6 +951,12 @@
         },
         "detail_id": {
           "name": "detail_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "training_block_id": {
+          "name": "training_block_id",
           "type": "integer",
           "primaryKey": false,
           "notNull": true
@@ -1007,28 +1006,41 @@
         "user_routines_user_id_users_id_fk": {
           "name": "user_routines_user_id_users_id_fk",
           "tableFrom": "user_routines",
-          "tableTo": "users",
           "columnsFrom": [
             "user_id"
           ],
+          "tableTo": "users",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "cascade"
         },
         "user_routines_detail_id_routine_details_id_fk": {
           "name": "user_routines_detail_id_routine_details_id_fk",
           "tableFrom": "user_routines",
-          "tableTo": "routine_details",
           "columnsFrom": [
             "detail_id"
           ],
+          "tableTo": "routine_details",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "restrict",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "restrict"
+        },
+        "user_routines_training_block_id_user_training_blocks_id_fk": {
+          "name": "user_routines_training_block_id_user_training_blocks_id_fk",
+          "tableFrom": "user_routines",
+          "columnsFrom": [
+            "training_block_id"
+          ],
+          "tableTo": "user_training_blocks",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "cascade"
         }
       },
       "compositePrimaryKeys": {},
@@ -1088,15 +1100,15 @@
         "routine_details_creator_id_users_id_fk": {
           "name": "routine_details_creator_id_users_id_fk",
           "tableFrom": "routine_details",
-          "tableTo": "users",
           "columnsFrom": [
             "creator_id"
           ],
+          "tableTo": "users",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "cascade"
         }
       },
       "compositePrimaryKeys": {},
@@ -1130,28 +1142,28 @@
         "routine_detail_properties_detail_id_routine_details_id_fk": {
           "name": "routine_detail_properties_detail_id_routine_details_id_fk",
           "tableFrom": "routine_detail_properties",
-          "tableTo": "routine_details",
           "columnsFrom": [
             "detail_id"
           ],
+          "tableTo": "routine_details",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "cascade"
         },
         "routine_detail_properties_property_id_properties_for_routine_details_id_fk": {
           "name": "routine_detail_properties_property_id_properties_for_routine_details_id_fk",
           "tableFrom": "routine_detail_properties",
-          "tableTo": "properties_for_routine_details",
           "columnsFrom": [
             "property_id"
           ],
+          "tableTo": "properties_for_routine_details",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "cascade"
         }
       },
       "compositePrimaryKeys": {
@@ -1194,10 +1206,233 @@
       "uniqueConstraints": {
         "properties_for_routine_details_name_unique": {
           "name": "properties_for_routine_details_name_unique",
-          "nullsNotDistinct": false,
           "columns": [
             "name"
+          ],
+          "nullsNotDistinct": false
+        }
+      }
+    },
+    "user_training_blocks": {
+      "name": "user_training_blocks",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "detail_id": {
+          "name": "detail_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "date": {
+          "name": "date",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "'1970-01-01'"
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        },
+        "trashed_at": {
+          "name": "trashed_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "trashed_by": {
+          "name": "trashed_by",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "user_training_blocks_user_id_users_id_fk": {
+          "name": "user_training_blocks_user_id_users_id_fk",
+          "tableFrom": "user_training_blocks",
+          "columnsFrom": [
+            "user_id"
+          ],
+          "tableTo": "users",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "cascade"
+        },
+        "user_training_blocks_detail_id_training_block_details_id_fk": {
+          "name": "user_training_blocks_detail_id_training_block_details_id_fk",
+          "tableFrom": "user_training_blocks",
+          "columnsFrom": [
+            "detail_id"
+          ],
+          "tableTo": "training_block_details",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "restrict"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "training_block_details": {
+      "name": "training_block_details",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "creator_id": {
+          "name": "creator_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "training_block_details_creator_id_users_id_fk": {
+          "name": "training_block_details_creator_id_users_id_fk",
+          "tableFrom": "training_block_details",
+          "columnsFrom": [
+            "creator_id"
+          ],
+          "tableTo": "users",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "cascade"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "training_block_detail_properties": {
+      "name": "training_block_detail_properties",
+      "schema": "",
+      "columns": {
+        "detail_id": {
+          "name": "detail_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "property_id": {
+          "name": "property_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "value": {
+          "name": "value",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "training_block_detail_properties_detail_id_training_block_details_id_fk": {
+          "name": "training_block_detail_properties_detail_id_training_block_details_id_fk",
+          "tableFrom": "training_block_detail_properties",
+          "columnsFrom": [
+            "detail_id"
+          ],
+          "tableTo": "training_block_details",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "cascade"
+        },
+        "training_block_detail_properties_property_id_properties_for_training_block_details_id_fk": {
+          "name": "training_block_detail_properties_property_id_properties_for_training_block_details_id_fk",
+          "tableFrom": "training_block_detail_properties",
+          "columnsFrom": [
+            "property_id"
+          ],
+          "tableTo": "properties_for_training_block_details",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "cascade"
+        }
+      },
+      "compositePrimaryKeys": {
+        "training_block_detail_properties_detail_id_property_id_pk": {
+          "name": "training_block_detail_properties_detail_id_property_id_pk",
+          "columns": [
+            "detail_id",
+            "property_id"
           ]
+        }
+      },
+      "uniqueConstraints": {}
+    },
+    "properties_for_training_block_details": {
+      "name": "properties_for_training_block_details",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "data_type": {
+          "name": "data_type",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "properties_for_training_block_details_name_unique": {
+          "name": "properties_for_training_block_details_name_unique",
+          "columns": [
+            "name"
+          ],
+          "nullsNotDistinct": false
         }
       }
     }
