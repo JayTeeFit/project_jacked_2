@@ -1,8 +1,17 @@
 import {
   NewUserProfileSchema,
   UserProfileSchema,
+  userProfiles,
 } from "src/db/schema/users/user_profiles";
+import {
+  DbUpsertModelResponse,
+  dbModelResponse,
+} from "src/models/utils/model_responses";
 
+export type UserProfileCreateResult = {
+  error: string | null;
+  userProfileSchema: UserProfileSchema | null;
+};
 export default class UserProfile {
   protected _id: number;
   protected _userId: number;
@@ -21,7 +30,43 @@ export default class UserProfile {
   }
 
   // implement IF I need it
-  static async create(attributes: NewUserProfileSchema) {}
+  static async create(
+    attributes: NewUserProfileSchema
+  ): Promise<DbUpsertModelResponse<UserProfile>> {
+    const result: UserProfileCreateResult = await db.transaction(async (tx) => {
+      let newUserProfileSchema: NewUserProfileSchema = { ...attributes };
+      let userProfileSchema: UserProfileSchema;
+      try {
+        [userProfileSchema] = await tx
+          .insert(userProfiles)
+          .values(newUserProfileSchema)
+          .returning();
+      } catch (err) {
+        return UserProfile._userProfileCreateResult({
+          error: getErrorMessage(err) || "unkown error",
+        });
+      }
+      return UserProfile._userProfileCreateResult({ userProfileSchema });
+    });
+
+    if (result.error) {
+      return dbModelResponse({ errorMessage: result.error });
+    }
+
+    const profile = new UserProfile(
+      result.userProfileSchema as UserProfileSchema
+    );
+    return dbModelResponse({ value: profile });
+  }
+
+  static _userProfileCreateResult(
+    result: Partial<UserProfileCreateResult>
+  ): UserProfileCreateResult {
+    return {
+      error: result.error || null,
+      userProfileSchema: result.userProfileSchema || null,
+    };
+  }
 
   // Getters
   public get id() {

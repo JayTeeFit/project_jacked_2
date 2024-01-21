@@ -1,7 +1,9 @@
-import { NewUserSchema } from "src/db/schema";
+import { NewUserSchema, users } from "src/db/schema/users/users";
 import User from "src/models/user/user";
 import UserProfile from "src/models/user/user_profile";
 import { dbTestSuite } from "src/test_helpers/setup_server_test_suite";
+import Sinon from "sinon";
+import { eq } from "drizzle-orm";
 
 dbTestSuite("UserModel", () => {
   const defaultTestUserSchema = {
@@ -80,6 +82,34 @@ dbTestSuite("UserModel", () => {
 
       const userResponse = await User.create(newUser);
       expect(userResponse.value).toBeNull();
+    });
+  });
+
+  suite("fetchProfileAsync", () => {
+    test("returns profile synchronously if pre-fetched", async () => {
+      const dbSelectSpy = Sinon.spy(db, "select");
+      const user = await createDefaultUser(true);
+      expect(user).not.toBeNull();
+
+      const profile = await user?.fetchProfileAsync();
+      Sinon.assert.notCalled(dbSelectSpy);
+    });
+
+    test("fetches profile async", async () => {
+      const createdUser = await createDefaultUser(true);
+      expect(createdUser).not.toBeNull();
+
+      const userSchema = await db.query.users.findFirst({
+        where: eq(users.id, createdUser!.id),
+      });
+
+      const user = userSchema ? new User(userSchema) : null;
+      expect(user).not.toBeNull();
+      expect(user!.profile).toBeNull();
+
+      const asyncProfile = await user!.fetchProfileAsync();
+      expect(asyncProfile).not.toBeNull();
+      expect(asyncProfile).toEqual(user!.profile);
     });
   });
 });

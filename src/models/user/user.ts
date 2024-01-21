@@ -12,7 +12,7 @@ import {
   dbModelResponse,
 } from "src/models/utils/model_responses";
 
-export type OptionalUserCreate = {
+export type OptionalUserRelations = {
   profileInfo?: Omit<NewUserProfileSchema, "userId">;
 };
 
@@ -63,12 +63,12 @@ export default class User {
    *
    * @remarks As a biproduct, a user profile is also created and associated with the created user
    * @param attributes - the attributes to describe the user
-   * @param optConfig  - optional attribute details for objects which are created in association with the user (e.g. user profile)
+   * @param optRelationConfigs  - optional attribute details for objects which are created in association with the user (e.g. user profile)
    * @returns a User object if successfully committed to db, or null if there is a problem in the transaction
    */
   static async create(
     attributes: NewUserSchema,
-    optConfig?: OptionalUserCreate
+    optRelationConfigs?: OptionalUserRelations
   ): Promise<DbUpsertModelResponse<User>> {
     const result: UserCreateResult = await db.transaction(async (tx) => {
       let userSchema: UserSchema;
@@ -81,7 +81,7 @@ export default class User {
         [userSchema] = await tx.insert(users).values(updatedAttr).returning();
         const newUserProfileSchema: NewUserProfileSchema = {
           userId: userSchema.id,
-          ...optConfig?.profileInfo,
+          ...optRelationConfigs?.profileInfo,
         };
 
         [userProfileSchema] = await tx
