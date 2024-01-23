@@ -26,7 +26,7 @@ export const exerciseNames = pgTable(
     }),
   },
   (t) => ({
-    unq: unique().on(t.value, t.creatorId).nullsNotDistinct(),
+    unq: unique().on(t.creatorId, t.value).nullsNotDistinct(),
   })
 );
 
