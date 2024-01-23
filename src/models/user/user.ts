@@ -6,7 +6,7 @@ import {
 } from "src/db/schema/users/user_profiles";
 import { Premiumness } from "src/db/schema/types/user";
 import UserProfile from "src/models/user/user_profile";
-import { eq } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import {
   DbUpsertModelResponse,
   dbModelResponse,
@@ -113,8 +113,43 @@ export default class User {
     return dbModelResponse({ value: user });
   }
 
-  static async findUserById(id: number): Promise<User | null> {
-    const result = await db.query.users.findFirst({ where: eq(users.id, id) });
+  static async findUserById(
+    id: number,
+    withRelations?: {
+      profile?: true;
+    }
+  ): Promise<User | null> {
+    // if we want relations, build the query itself
+    if (withRelations) {
+      if (withRelations.profile) {
+        const query = db
+          .select()
+          .from(users)
+          .innerJoin(userProfiles, eq(users.id, userProfiles.userId))
+          .where(eq(users.id, id));
+
+        const { sql: sqlString, params } = query.toSQL();
+        console.log(`Query: ${sqlString}, Params: [${params}]`);
+
+        const result = await query.execute();
+        const userWithProfile = result.at(0);
+
+        if (!userWithProfile) {
+          return null;
+        }
+
+        const { users: userSchema, user_profiles: userProfileSchema } =
+          userWithProfile;
+
+        const profile = new UserProfile(userProfileSchema);
+
+        return new User({ ...userSchema, profile });
+      }
+    }
+    // no relations so fetch just the user
+    const result = await db.query.users.findFirst({
+      where: eq(users.id, id),
+    });
 
     if (!result) {
       return null;
@@ -123,7 +158,6 @@ export default class User {
     const userSchema: UserSchemaWithRelations = {
       ...result,
     };
-
     return new User(userSchema);
   }
 

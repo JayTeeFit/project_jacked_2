@@ -93,6 +93,16 @@ dbTestSuite("UserModel", () => {
     });
   });
 
+  suite("findUserById", () => {
+    test("fetches and sets profile on user", async () => {
+      const user = await createDefaultUser({}, true);
+
+      const foundUser = await User.findUserById(user!.id, { profile: true });
+      expect(foundUser).not.toBeNull();
+      expect(foundUser!.profile).not.toBeNull();
+    });
+  });
+
   suite("profileAsync", () => {
     test("returns profile synchronously if pre-fetched", async () => {
       const dbSelectSpy = Sinon.spy(db, "select");
