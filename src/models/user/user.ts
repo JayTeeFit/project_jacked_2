@@ -251,7 +251,7 @@ export default class User {
   /**
    * Returns the user profile for this user if it has been pre-fetched, null otherwise
    * @remarks
-   * You should use profileAsync() unless you know it will exist, since it calls this before querying the db
+   * You should use profileAsync() to fetch the profile instead
    */
   public get profile() {
     return this._profile;
