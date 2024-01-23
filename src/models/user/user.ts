@@ -137,31 +137,6 @@ export default class User {
       }
 
       return new User(result);
-
-      // if (withRelations.profile) {
-      //   const query = db
-      //     .select()
-      //     .from(users)
-      //     .innerJoin(userProfiles, eq(users.id, userProfiles.userId))
-      //     .where(eq(users.id, id));
-
-      //   const { sql: sqlString, params } = query.toSQL();
-      //   console.log(`Query: ${sqlString}, Params: [${params}]`);
-
-      //   const result = await query.execute();
-      //   const userWithProfile = result.at(0);
-
-      //   if (!userWithProfile) {
-      //     return null;
-      //   }
-
-      //   const { users: userSchema, user_profiles: userProfileSchema } =
-      //     userWithProfile;
-
-      //   const profile = new UserProfile(userProfileSchema);
-
-      //   return new User({ ...userSchema, profile });
-      // }
     }
     // no relations so fetch just the user
     const result = await db.query.users.findFirst({
