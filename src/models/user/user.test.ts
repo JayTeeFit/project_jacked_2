@@ -94,6 +94,14 @@ dbTestSuite("UserModel", () => {
   });
 
   suite("findUserById", () => {
+    test("fetches a user with no relations", async () => {
+      const user = await createDefaultUser({}, false);
+
+      const foundUser = await User.findUserById(user!.id);
+      expect(foundUser).not.toBeNull();
+      expect(foundUser!.profile).toBeNull();
+    });
+
     test("fetches and sets profile on user", async () => {
       const user = await createDefaultUser({}, true);
 

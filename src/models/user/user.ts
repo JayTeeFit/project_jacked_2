@@ -6,7 +6,7 @@ import {
 } from "src/db/schema/users/user_profiles";
 import { Premiumness } from "src/db/schema/types/user";
 import UserProfile from "src/models/user/user_profile";
-import { eq, sql } from "drizzle-orm";
+import { SQL, eq, sql } from "drizzle-orm";
 import {
   DbUpsertModelResponse,
   dbModelResponse,
@@ -28,7 +28,7 @@ export type UserUpdateResult = {
 };
 
 export type UserRelations = {
-  profile?: UserProfile | null;
+  profile?: UserProfile | UserProfileSchema | null;
 };
 
 export type UserSchemaWithRelations = UserSchema & UserRelations;
@@ -59,7 +59,11 @@ export default class User {
     this._trashedBy = attributes.trashedBy;
     this._updatedAt = attributes.updatedAt;
     this._createdAt = attributes.createdAt;
-    this._profile = attributes.profile || null;
+    if (!attributes.profile || attributes.profile instanceof UserProfile) {
+      this._profile = attributes.profile || null;
+    } else {
+      this._profile = new UserProfile(attributes.profile);
+    }
   }
 
   /**
@@ -120,31 +124,44 @@ export default class User {
     }
   ): Promise<User | null> {
     // if we want relations, build the query itself
-    if (withRelations) {
-      if (withRelations.profile) {
-        const query = db
-          .select()
-          .from(users)
-          .innerJoin(userProfiles, eq(users.id, userProfiles.userId))
-          .where(eq(users.id, id));
+    if (withRelations && Object.keys(withRelations).length > 0) {
+      const queryParams = {
+        where: eq(users.id, id),
+        with: withRelations,
+      };
 
-        const { sql: sqlString, params } = query.toSQL();
-        console.log(`Query: ${sqlString}, Params: [${params}]`);
+      const result = await db.query.users.findFirst(queryParams);
 
-        const result = await query.execute();
-        const userWithProfile = result.at(0);
-
-        if (!userWithProfile) {
-          return null;
-        }
-
-        const { users: userSchema, user_profiles: userProfileSchema } =
-          userWithProfile;
-
-        const profile = new UserProfile(userProfileSchema);
-
-        return new User({ ...userSchema, profile });
+      if (!result) {
+        return null;
       }
+
+      return new User(result);
+
+      // if (withRelations.profile) {
+      //   const query = db
+      //     .select()
+      //     .from(users)
+      //     .innerJoin(userProfiles, eq(users.id, userProfiles.userId))
+      //     .where(eq(users.id, id));
+
+      //   const { sql: sqlString, params } = query.toSQL();
+      //   console.log(`Query: ${sqlString}, Params: [${params}]`);
+
+      //   const result = await query.execute();
+      //   const userWithProfile = result.at(0);
+
+      //   if (!userWithProfile) {
+      //     return null;
+      //   }
+
+      //   const { users: userSchema, user_profiles: userProfileSchema } =
+      //     userWithProfile;
+
+      //   const profile = new UserProfile(userProfileSchema);
+
+      //   return new User({ ...userSchema, profile });
+      // }
     }
     // no relations so fetch just the user
     const result = await db.query.users.findFirst({
