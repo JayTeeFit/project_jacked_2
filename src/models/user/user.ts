@@ -33,7 +33,7 @@ export type UserRelations = {
 
 export type UserSchemaWithRelations = UserSchema & UserRelations;
 
-export default class User {
+export default class User implements UserSchema {
   protected _id: number;
   protected _username: string;
   protected _email: string;
@@ -223,10 +223,7 @@ export default class User {
   }
 
   _updateUserProperties(properties: UserSchema) {
-    Object.entries(properties).forEach(([property, value]) => {
-      // @ts-ignore
-      this[property] = value;
-    });
+    Object.assign(this, properties);
   }
 
   // Getters
