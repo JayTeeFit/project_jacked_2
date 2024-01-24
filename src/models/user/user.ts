@@ -9,14 +9,17 @@ import UserProfile from "src/models/user/user_profile";
 import { SQL, eq, sql } from "drizzle-orm";
 import {
   DbUpsertModelResponse,
+  RemoveResponse,
+  ResponseStatus,
   dbModelResponse,
+  errorResponse,
 } from "src/models/utils/model_responses";
 
 export type OptionalUserRelations = {
   profileInfo?: Omit<NewUserProfileSchema, "userId">;
 };
 
-export type UserCreateResult = {
+export type UserUpsertResult = {
   error: string | null;
   userSchema: UserSchema | null;
   userProfileSchema: UserProfileSchema | null;
@@ -72,13 +75,13 @@ export default class User implements UserSchema {
    * @remarks As a biproduct, a user profile is also created and associated with the created user
    * @param attributes - the attributes to describe the user
    * @param optRelationConfigs  - optional attribute details for objects which are created in association with the user (e.g. user profile)
-   * @returns a User object if successfully committed to db, or null if there is a problem in the transaction
+   * @returns a User object for the created user or null
    */
   static async create(
     attributes: NewUserSchema,
     optRelationConfigs?: OptionalUserRelations
   ): Promise<DbUpsertModelResponse<User>> {
-    const result: UserCreateResult = await db.transaction(async (tx) => {
+    const result: UserUpsertResult = await db.transaction(async (tx) => {
       let userSchema: UserSchema;
       let userProfileSchema: UserProfileSchema;
       // enforce lower case email
@@ -98,7 +101,7 @@ export default class User implements UserSchema {
           .returning();
       } catch (err) {
         return User._userCreateResult({
-          error: getErrorMessage(err) || "unkown error",
+          error: errorResponse(err),
         });
       }
       return User._userCreateResult({ userSchema, userProfileSchema });
@@ -123,7 +126,7 @@ export default class User implements UserSchema {
       profile?: true;
     }
   ): Promise<User | null> {
-    // if we want relations, build the query itself
+    // with relations
     if (withRelations && Object.keys(withRelations).length > 0) {
       const queryParams = {
         where: eq(users.id, id),
@@ -138,7 +141,7 @@ export default class User implements UserSchema {
 
       return new User(result);
     }
-    // no relations so fetch just the user
+    // no relations
     const result = await db.query.users.findFirst({
       where: eq(users.id, id),
     });
@@ -154,8 +157,8 @@ export default class User implements UserSchema {
   }
 
   static _userCreateResult(
-    result: Partial<UserCreateResult>
-  ): UserCreateResult {
+    result: Partial<UserUpsertResult>
+  ): UserUpsertResult {
     return {
       error: result.error || null,
       userSchema: result.userSchema || null,
@@ -200,7 +203,7 @@ export default class User implements UserSchema {
           .returning();
       } catch (err) {
         return this._userUpdateResult({
-          error: getErrorMessage(err) || "unkown error",
+          error: errorResponse(err),
         });
       }
       return this._userUpdateResult({ userSchema });
@@ -215,15 +218,44 @@ export default class User implements UserSchema {
     return dbModelResponse({ value: this });
   }
 
-  _userUpdateResult(result: Partial<UserCreateResult>): UserUpdateResult {
-    return {
-      error: result.error || null,
-      userSchema: result.userSchema || null,
-    };
+  async trash(trashedBy: number): Promise<DbUpsertModelResponse<User>> {
+    const date = new Date(Date.now());
+    return this.updateUser({
+      trashedAt: date,
+      trashedBy,
+      updatedAt: date,
+      isActive: false,
+    });
+  }
+
+  async remove(): Promise<RemoveResponse> {
+    const result: RemoveResponse = await db.transaction(async (tx) => {
+      try {
+        await tx.delete(users).where(eq(users.id, this.id));
+      } catch (err) {
+        return {
+          status: ResponseStatus.FAILURE,
+          errorMessage: errorResponse(err),
+        };
+      }
+      return {
+        status: ResponseStatus.SUCCESS,
+        errorMessage: null,
+      };
+    });
+
+    return result;
   }
 
   _updateUserProperties(properties: UserSchema) {
     Object.assign(this, properties);
+  }
+
+  _userUpdateResult(result: Partial<UserUpsertResult>): UserUpdateResult {
+    return {
+      error: result.error || null,
+      userSchema: result.userSchema || null,
+    };
   }
 
   // Getters

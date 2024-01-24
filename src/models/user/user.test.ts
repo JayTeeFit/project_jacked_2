@@ -4,6 +4,8 @@ import UserProfile from "src/models/user/user_profile";
 import { dbTestSuite } from "src/test_helpers/setup_server_test_suite";
 import Sinon from "sinon";
 import { eq } from "drizzle-orm";
+import { ResponseStatus } from "src/models/utils/model_responses";
+import { userProfiles } from "src/db/schema";
 
 dbTestSuite("UserModel", () => {
   const defaultTestUserSchema = {
@@ -168,6 +170,47 @@ dbTestSuite("UserModel", () => {
       await user!.updateUser(updateAttr);
 
       expect(user?.updatedAt.getTime()).toBeGreaterThan(newTime.getTime());
+    });
+
+    suite("trash", () => {
+      test("trashes a user", async () => {
+        const user = await createDefaultUser({}, false);
+        expect(user).not.toBeNull();
+
+        await user!.trash(user!.id);
+        expect(user!.trashedBy).toBe(user!.id);
+        expect(user!.trashedAt).not.toBeNull();
+        expect(user!.isActive).toBe(false);
+      });
+    });
+
+    suite("remove", () => {
+      test("deletes a user from db", async () => {
+        const user = await createDefaultUser({}, false);
+        expect(user).not.toBeNull();
+
+        const userId = user!.id;
+        const response = await user!.remove();
+        expect(response.status).toBe(ResponseStatus.SUCCESS);
+
+        const userFound = await User.findUserById(userId);
+        expect(userFound).toBeNull();
+      });
+
+      test("deletes users profile", async () => {
+        const user = await createDefaultUser({}, false);
+        expect(user).not.toBeNull();
+
+        const userId = user!.id;
+        const response = await user!.remove();
+        expect(response.status).toBe(ResponseStatus.SUCCESS);
+
+        const [userProfile] = await db
+          .select()
+          .from(userProfiles)
+          .where(eq(userProfiles.userId, userId));
+        expect(userProfile).toBeUndefined();
+      });
     });
   });
 });
