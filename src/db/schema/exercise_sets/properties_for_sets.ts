@@ -16,4 +16,4 @@ export const propertiesForSetsRelations = relations(
 );
 
 export type PropertyForSetSchema = typeof propertiesForSets.$inferSelect;
-export type NewPropertyForSchema = typeof propertiesForSets.$inferInsert;
+export type NewPropertyForSetSchema = typeof propertiesForSets.$inferInsert;
