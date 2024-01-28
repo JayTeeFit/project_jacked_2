@@ -1,9 +1,11 @@
+import { eq } from "drizzle-orm";
 import {
   NewPropertyForSetSchema,
   PropertyForSetSchema,
   propertiesForSets,
 } from "src/db/schema/exercise_sets/properties_for_sets";
 import { DataType } from "src/db/schema/types/dynamic_properties";
+import { PropertyForSetName } from "src/db/schema/types/sets";
 import {
   DbUpsertModelResponse,
   dbModelResponse,
@@ -22,7 +24,7 @@ export type PropertyForSetWithRelations = PropertyForSetSchema &
 
 export default class PropertyForSet implements PropertyForSetSchema {
   private _id: number;
-  private _name: string;
+  private _name: PropertyForSetName;
   private _dataType: DataType;
 
   constructor(attributes: PropertyForSetWithRelations) {
@@ -69,6 +71,14 @@ export default class PropertyForSet implements PropertyForSetSchema {
     };
   }
 
+  static async findPropertyByName(name: PropertyForSetName) {
+    const property = await db.query.propertiesForSets.findFirst({
+      where: eq(propertiesForSets.name, name),
+    });
+
+    return property ? new PropertyForSet(property) : null;
+  }
+
   // Getters
   public get id() {
     return this._id;
@@ -82,12 +92,12 @@ export default class PropertyForSet implements PropertyForSetSchema {
     return this._dataType;
   }
 
-  // Getters
+  // Setters
   public set id(id: number) {
     this._id = id;
   }
 
-  public set name(name: string) {
+  public set name(name: PropertyForSetName) {
     this._name = name;
   }
 

@@ -29,6 +29,13 @@
       "when": 1705984641590,
       "tag": "0003_giant_machine_man",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "5",
+      "when": 1706396190901,
+      "tag": "0004_open_barracuda",
+      "breakpoints": true
     }
   ]
 }

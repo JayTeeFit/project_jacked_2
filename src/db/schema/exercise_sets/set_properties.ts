@@ -6,12 +6,16 @@ import { propertiesForSets } from "src/db/schema/exercise_sets/properties_for_se
 export const setProperties = pgTable(
   "set_properties",
   {
-    setId: integer("set_id").references(() => exerciseSets.id, {
-      onDelete: "cascade",
-    }),
-    propertyId: integer("property_id").references(() => propertiesForSets.id, {
-      onDelete: "cascade",
-    }),
+    setId: integer("set_id")
+      .references(() => exerciseSets.id, {
+        onDelete: "cascade",
+      })
+      .notNull(),
+    propertyId: integer("property_id")
+      .references(() => propertiesForSets.id, {
+        onDelete: "cascade",
+      })
+      .notNull(),
     value: text("value"),
   },
   (t) => ({
