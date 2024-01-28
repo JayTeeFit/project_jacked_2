@@ -4,7 +4,7 @@ import {
   userProfiles,
 } from "src/db/schema/users/user_profiles";
 import {
-  DbUpsertModelResponse,
+  DbModelResponse,
   dbModelResponse,
 } from "src/models/utils/model_responses";
 
@@ -29,10 +29,9 @@ export default class UserProfile {
     this._updatedAt = attributes.updatedAt;
   }
 
-  // implement IF I need it
   static async create(
     attributes: NewUserProfileSchema
-  ): Promise<DbUpsertModelResponse<UserProfile>> {
+  ): Promise<DbModelResponse<UserProfile>> {
     const result: UserProfileCreateResult = await db.transaction(async (tx) => {
       let newUserProfileSchema: NewUserProfileSchema = { ...attributes };
       let userProfileSchema: UserProfileSchema;

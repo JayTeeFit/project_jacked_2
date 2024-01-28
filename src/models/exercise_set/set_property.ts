@@ -1,12 +1,6 @@
-import { eq } from "drizzle-orm";
-import {
-  ExerciseSetSchema,
-  exerciseSets,
-} from "src/db/schema/exercise_sets/exercise_sets";
-import {
-  PropertyForSetSchema,
-  propertiesForSets,
-} from "src/db/schema/exercise_sets/properties_for_sets";
+import { and, eq } from "drizzle-orm";
+import { ExerciseSetSchema } from "src/db/schema/exercise_sets/exercise_sets";
+import { PropertyForSetSchema } from "src/db/schema/exercise_sets/properties_for_sets";
 import {
   NewSetPropertySchema,
   SetPropertySchema,
@@ -16,18 +10,19 @@ import { DataType } from "src/db/schema/types/dynamic_properties";
 import { PropertyForSetName } from "src/db/schema/types/sets";
 import ExerciseSet from "src/models/exercise_set/exercise_set";
 import PropertyForSet from "src/models/exercise_set/property_for_set";
+import { cleanAndValidateValueInput } from "src/models/utils/dynamic_property_helpers";
 import {
-  DbUpsertModelResponse,
+  DbModelResponse,
+  RemoveResponse,
+  ResponseStatus,
   dbModelResponse,
   errorResponse,
 } from "src/models/utils/model_responses";
 
-type SetId = number;
-
 export type CreateSetProperty = {
-  set: SetId | ExerciseSet;
-  propertyOrName: PropertyForSetName | PropertyForSet;
-  value?: string | null;
+  setId: number;
+  propertyName: PropertyForSetName;
+  value: string;
 };
 
 type PropertyUpsertResult = {
@@ -46,13 +41,13 @@ export type SetPropertyInterface = SetPropertySchema &
   Omit<PropertyForSetSchema, "id">;
 
 export default class SetProperty implements SetPropertyInterface {
-  private _value: string | null;
-  private _setId: number;
-  private _propertyId: number;
-  private _name: PropertyForSetName;
-  private _dataType: DataType;
-  private _set: ExerciseSet | null;
-  private _property: PropertyForSet;
+  protected _value: string | null;
+  protected _setId: number;
+  protected _propertyId: number;
+  protected _name: PropertyForSetName;
+  protected _dataType: DataType;
+  protected _set: ExerciseSet | null;
+  protected _property: PropertyForSet;
 
   constructor(attributes: SetPropertyWithRelations) {
     this._value = attributes.value;
@@ -77,31 +72,28 @@ export default class SetProperty implements SetPropertyInterface {
 
   static async create(
     attributes: CreateSetProperty
-  ): Promise<DbUpsertModelResponse<SetProperty>> {
+  ): Promise<DbModelResponse<SetProperty>> {
     let property: PropertyForSet | null;
 
-    if (typeof attributes.propertyOrName === "string") {
-      property = await PropertyForSet.findPropertyByName(
-        attributes.propertyOrName
-      );
+    property = await PropertyForSet.findPropertyByName(attributes.propertyName);
 
-      if (!property) {
-        return dbModelResponse({
-          errorMessage: `No property ${attributes.propertyOrName} exists`,
-        });
-      }
-    } else {
-      property = attributes.propertyOrName;
+    if (!property) {
+      return dbModelResponse({
+        errorMessage: `No property ${attributes.propertyName} exists`,
+      });
     }
 
     let newPropertySchema: NewSetPropertySchema = {
-      setId:
-        attributes.set instanceof ExerciseSet
-          ? attributes.set.id
-          : attributes.set,
+      setId: attributes.setId,
       propertyId: property.id,
-      value: attributes.value,
+      value: cleanAndValidateValueInput(attributes.value, property.dataType),
     };
+
+    if (!newPropertySchema.value) {
+      return dbModelResponse({
+        errorMessage: `${attributes.value} is not a valid input for ${property.name}`,
+      });
+    }
 
     const result = await db.transaction(async (tx) => {
       let setPropertySchema: SetPropertySchema;
@@ -112,11 +104,11 @@ export default class SetProperty implements SetPropertyInterface {
           .values(newPropertySchema)
           .returning();
       } catch (err) {
-        return SetProperty._propertyCreateResult({
+        return SetProperty._propertyUpsertResult({
           error: errorResponse(err),
         });
       }
-      return SetProperty._propertyCreateResult({
+      return SetProperty._propertyUpsertResult({
         setPropertySchema,
       });
     });
@@ -133,13 +125,91 @@ export default class SetProperty implements SetPropertyInterface {
     return dbModelResponse({ value: setProperty });
   }
 
-  static _propertyCreateResult(
+  static _propertyUpsertResult(
     result: Partial<PropertyUpsertResult>
   ): PropertyUpsertResult {
     return {
       error: result.error || null,
       setPropertySchema: result.setPropertySchema || null,
     };
+  }
+
+  async updatePropertyValueOrRemove(
+    value: string | null
+  ): Promise<DbModelResponse<SetProperty>> {
+    const cleanValue = cleanAndValidateValueInput(value, this.dataType);
+
+    if (!cleanValue) {
+      this.remove();
+    }
+
+    if (cleanValue === this.value) {
+      return dbModelResponse<SetProperty>({ value: this });
+    }
+
+    const result = await db.transaction(async (tx) => {
+      let setPropertySchema: SetPropertySchema;
+      try {
+        [setPropertySchema] = await tx
+          .update(setProperties)
+          .set({ value: cleanValue })
+          .where(
+            and(
+              eq(setProperties.setId, this.setId),
+              eq(setProperties.propertyId, this.propertyId)
+            )
+          )
+          .returning();
+      } catch (err) {
+        return SetProperty._propertyUpsertResult({
+          error: errorResponse(err),
+        });
+      }
+
+      return SetProperty._propertyUpsertResult({
+        setPropertySchema,
+      });
+    });
+
+    if (result.error) {
+      return dbModelResponse<SetProperty>({ errorMessage: result.error });
+    }
+
+    this._updateSetPropertyfields({
+      value: (result.setPropertySchema as SetPropertySchema).value,
+    });
+
+    return dbModelResponse<SetProperty>({ value: this });
+  }
+
+  async remove() {
+    const result: RemoveResponse = await db.transaction(async (tx) => {
+      try {
+        await tx
+          .delete(setProperties)
+          .where(
+            and(
+              eq(setProperties.setId, this.setId),
+              eq(setProperties.propertyId, this.propertyId)
+            )
+          );
+      } catch (err) {
+        return {
+          status: ResponseStatus.FAILURE,
+          errorMessage: errorResponse(err),
+        };
+      }
+      return {
+        status: ResponseStatus.SUCCESS,
+        errorMessage: null,
+      };
+    });
+
+    return result;
+  }
+
+  _updateSetPropertyfields(properties: Partial<SetPropertyInterface>) {
+    Object.assign(this, properties);
   }
 
   // Getters

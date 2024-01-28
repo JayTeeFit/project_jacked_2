@@ -1,7 +1,7 @@
 /**
  * Response expected from methods which mutate db data
  */
-export type DbUpsertModelResponse<T> = {
+export type DbModelResponse<T> = {
   errorMessage: string | null;
   value: T | null;
 };
@@ -17,8 +17,8 @@ export type RemoveResponse = {
 };
 
 export function dbModelResponse<T>(
-  attr: Partial<DbUpsertModelResponse<T>>
-): DbUpsertModelResponse<T> {
+  attr: Partial<DbModelResponse<T>>
+): DbModelResponse<T> {
   return {
     errorMessage: attr.errorMessage || null,
     value: attr.value || null,

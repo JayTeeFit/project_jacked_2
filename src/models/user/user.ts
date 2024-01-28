@@ -8,7 +8,7 @@ import { Premiumness } from "src/db/schema/types/user";
 import UserProfile from "src/models/user/user_profile";
 import { SQL, eq, sql } from "drizzle-orm";
 import {
-  DbUpsertModelResponse,
+  DbModelResponse,
   RemoveResponse,
   ResponseStatus,
   dbModelResponse,
@@ -80,7 +80,7 @@ export default class User implements UserSchema {
   static async create(
     attributes: NewUserSchema,
     optRelationConfigs?: OptionalUserRelations
-  ): Promise<DbUpsertModelResponse<User>> {
+  ): Promise<DbModelResponse<User>> {
     const result: UserUpsertResult = await db.transaction(async (tx) => {
       let userSchema: UserSchema;
       let userProfileSchema: UserProfileSchema;
@@ -184,7 +184,7 @@ export default class User implements UserSchema {
 
   async updateUser(
     attributes: Partial<Omit<UserSchema, "id">>
-  ): Promise<DbUpsertModelResponse<User>> {
+  ): Promise<DbModelResponse<User>> {
     const updateAttr = { ...attributes };
     updateAttr.updatedAt = new Date(Date.now());
 
@@ -218,7 +218,7 @@ export default class User implements UserSchema {
     return dbModelResponse({ value: this });
   }
 
-  async trash(trashedBy: number): Promise<DbUpsertModelResponse<User>> {
+  async trash(trashedBy: number): Promise<DbModelResponse<User>> {
     const date = new Date(Date.now());
     return this.updateUser({
       trashedAt: date,

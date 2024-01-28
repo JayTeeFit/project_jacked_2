@@ -157,7 +157,6 @@ dbTestSuite("UserModel", () => {
 
     test("updates updatedAt field", async () => {
       const newTime = new Date(Date.now() - 5 * 24 * 60 * 60 * 1000);
-      console.log(newTime);
 
       const user = await createDefaultUser({ updatedAt: newTime }, false);
       expect(user).not.toBeNull();

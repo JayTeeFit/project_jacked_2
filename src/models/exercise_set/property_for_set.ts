@@ -7,7 +7,7 @@ import {
 import { DataType } from "src/db/schema/types/dynamic_properties";
 import { PropertyForSetName } from "src/db/schema/types/sets";
 import {
-  DbUpsertModelResponse,
+  DbModelResponse,
   dbModelResponse,
   errorResponse,
 } from "src/models/utils/model_responses";
@@ -23,9 +23,9 @@ export type PropertyForSetWithRelations = PropertyForSetSchema &
   PropertyForSetRelations;
 
 export default class PropertyForSet implements PropertyForSetSchema {
-  private _id: number;
-  private _name: PropertyForSetName;
-  private _dataType: DataType;
+  protected _id: number;
+  protected _name: PropertyForSetName;
+  protected _dataType: DataType;
 
   constructor(attributes: PropertyForSetWithRelations) {
     this._id = attributes.id;
@@ -35,7 +35,7 @@ export default class PropertyForSet implements PropertyForSetSchema {
 
   static async create(
     attributes: NewPropertyForSetSchema
-  ): Promise<DbUpsertModelResponse<PropertyForSet>> {
+  ): Promise<DbModelResponse<PropertyForSet>> {
     const result = await db.transaction(async (tx) => {
       let propertySchema: PropertyForSetSchema;
       try {

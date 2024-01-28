@@ -1,4 +1,9 @@
-export const dataTypesEnum = ["string", "integer", "boolean"] as const;
+export const dataTypesEnum = [
+  "string",
+  "integer",
+  "boolean",
+  "decimal",
+] as const;
 export type DataType = (typeof dataTypesEnum)[number];
 
 export interface DynamicPropertiesSchema {
