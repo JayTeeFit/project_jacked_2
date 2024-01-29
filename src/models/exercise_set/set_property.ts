@@ -23,6 +23,7 @@ export type CreateSetProperty = {
   setId: number;
   propertyName: PropertyForSetName;
   value: string;
+  isRange?: boolean;
 };
 
 type PropertyUpsertResult = {
@@ -48,11 +49,13 @@ export default class SetProperty implements SetPropertyInterface {
   protected _dataType: DataType;
   protected _set: ExerciseSet | null;
   protected _property: PropertyForSet;
+  protected _isRange: boolean;
 
   constructor(attributes: SetPropertyWithRelations) {
     this._value = attributes.value;
     this._propertyId = attributes.propertyId;
     this._setId = attributes.setId;
+    this._isRange = attributes.isRange || false;
     // set
     if (!attributes.set || attributes.set instanceof ExerciseSet) {
       this._set = attributes.set || null;
@@ -83,10 +86,24 @@ export default class SetProperty implements SetPropertyInterface {
       });
     }
 
+    const { value: cleanValue, error } = cleanAndValidateValueInput(
+      attributes.value,
+      property.dataType,
+      property.name,
+      attributes.isRange
+    );
+
+    if (error) {
+      return dbModelResponse({
+        errorMessage: error.message,
+      });
+    }
+
     let newPropertySchema: NewSetPropertySchema = {
       setId: attributes.setId,
       propertyId: property.id,
-      value: cleanAndValidateValueInput(attributes.value, property.dataType),
+      value: cleanValue,
+      isRange: attributes.isRange,
     };
 
     if (!newPropertySchema.value) {
@@ -137,7 +154,18 @@ export default class SetProperty implements SetPropertyInterface {
   async updatePropertyValueOrRemove(
     value: string | null
   ): Promise<DbModelResponse<SetProperty>> {
-    const cleanValue = cleanAndValidateValueInput(value, this.dataType);
+    const { value: cleanValue, error } = cleanAndValidateValueInput(
+      value,
+      this.dataType,
+      this.name,
+      this.isRange
+    );
+
+    if (error) {
+      return dbModelResponse<SetProperty>({
+        errorMessage: error.message,
+      });
+    }
 
     if (!cleanValue) {
       this.remove();
@@ -225,6 +253,10 @@ export default class SetProperty implements SetPropertyInterface {
     return this._propertyId;
   }
 
+  public get isRange() {
+    return this._isRange;
+  }
+
   public get set() {
     return this._set;
   }
@@ -248,6 +280,10 @@ export default class SetProperty implements SetPropertyInterface {
 
   public set setId(setId: number) {
     this._setId = setId;
+  }
+
+  public set isRange(isRange: boolean) {
+    this._isRange = isRange;
   }
 
   public set set(set: ExerciseSet | null) {

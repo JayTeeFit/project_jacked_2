@@ -1,5 +1,11 @@
 import { relations } from "drizzle-orm";
-import { integer, pgTable, primaryKey, text } from "drizzle-orm/pg-core";
+import {
+  boolean,
+  integer,
+  pgTable,
+  primaryKey,
+  text,
+} from "drizzle-orm/pg-core";
 import { exerciseSets } from "src/db/schema/exercise_sets/exercise_sets";
 import { propertiesForSets } from "src/db/schema/exercise_sets/properties_for_sets";
 
@@ -17,6 +23,7 @@ export const setProperties = pgTable(
       })
       .notNull(),
     value: text("value"),
+    isRange: boolean("is_range").default(false),
   },
   (t) => ({
     pk: primaryKey({ columns: [t.setId, t.propertyId] }),
