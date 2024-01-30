@@ -45,7 +45,7 @@ export default class PropertyForSet implements PropertyForSetSchema {
           .returning();
       } catch (err) {
         return PropertyForSet._propertyCreateResult({
-          error: errorResponse(err),
+          error: errorResponse(err, "PropertyForSet.create"),
         });
       }
       return PropertyForSet._propertyCreateResult({ propertySchema });

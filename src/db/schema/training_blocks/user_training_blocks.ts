@@ -16,7 +16,7 @@ export const userTrainingBlocks = pgTable("user_training_blocks", {
   detailId: integer("detail_id").references(() => trainingBlockDetails.id, {
     onDelete: "restrict",
   }),
-  date: date("date").default("1970-01-01"),
+  date: date("date").default("1970-01-01").notNull(),
   ...createdAndUpdatedAtColumns(),
   ...trashableObjectColumns(),
 });
@@ -36,5 +36,5 @@ export const userTrainingBlocksRelations = relations(
   })
 );
 
-export type UserTrainingBlock = typeof userTrainingBlocks.$inferSelect;
-export type NewUserTrainingBlock = typeof userTrainingBlocks.$inferInsert;
+export type UserTrainingBlockSchema = typeof userTrainingBlocks.$inferSelect;
+export type NewUserTrainingBlockSchema = typeof userTrainingBlocks.$inferInsert;

@@ -17,7 +17,7 @@ export const exerciseSets = pgTable("exercise_sets", {
     .references(() => userExercises.id, { onDelete: "cascade" })
     .notNull(),
   actualWeight: decimal("actual_weight", {
-    precision: 4,
+    precision: 7,
     scale: 2,
   }),
   actualReps: integer("actual_reps"),
@@ -25,11 +25,11 @@ export const exerciseSets = pgTable("exercise_sets", {
   weightUnits: varchar("weight_units", {
     length: 5,
     enum: weightUnitsEnum,
-  }),
+  }).default("lbs"),
   exertionUnits: varchar("exertion_units", {
     length: 10,
     enum: exertionUnitsEnum,
-  }),
+  }).default("RPE"),
   ...listOrderColumn(),
 });
 

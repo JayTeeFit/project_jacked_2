@@ -1,5 +1,8 @@
 import { and, eq } from "drizzle-orm";
-import { ExerciseSetSchema } from "src/db/schema/exercise_sets/exercise_sets";
+import {
+  ExerciseSetSchema,
+  exerciseSets,
+} from "src/db/schema/exercise_sets/exercise_sets";
 import { PropertyForSetSchema } from "src/db/schema/exercise_sets/properties_for_sets";
 import {
   NewSetPropertySchema,
@@ -122,7 +125,7 @@ export default class SetProperty implements SetPropertyInterface {
           .returning();
       } catch (err) {
         return SetProperty._propertyUpsertResult({
-          error: errorResponse(err),
+          error: errorResponse(err, "SetProperty.create"),
         });
       }
       return SetProperty._propertyUpsertResult({
@@ -151,11 +154,11 @@ export default class SetProperty implements SetPropertyInterface {
     };
   }
 
-  async updatePropertyValueOrRemove(
-    value: string | null
+  async updatePropertyValue(
+    newValue: string
   ): Promise<DbModelResponse<SetProperty>> {
     const { value: cleanValue, error } = cleanAndValidateValueInput(
-      value,
+      newValue,
       this.dataType,
       this.name,
       this.isRange
@@ -167,11 +170,9 @@ export default class SetProperty implements SetPropertyInterface {
       });
     }
 
-    if (!cleanValue) {
-      this.remove();
-    }
+    const value = cleanValue!;
 
-    if (cleanValue === this.value) {
+    if (value === this.value) {
       return dbModelResponse<SetProperty>({ value: this });
     }
 
@@ -180,7 +181,7 @@ export default class SetProperty implements SetPropertyInterface {
       try {
         [setPropertySchema] = await tx
           .update(setProperties)
-          .set({ value: cleanValue })
+          .set({ value })
           .where(
             and(
               eq(setProperties.setId, this.setId),
@@ -190,7 +191,7 @@ export default class SetProperty implements SetPropertyInterface {
           .returning();
       } catch (err) {
         return SetProperty._propertyUpsertResult({
-          error: errorResponse(err),
+          error: errorResponse(err, "SetProperty.updatePropertyValue"),
         });
       }
 
@@ -204,7 +205,7 @@ export default class SetProperty implements SetPropertyInterface {
     }
 
     this._updateSetPropertyfields({
-      value: (result.setPropertySchema as SetPropertySchema).value,
+      value: result.setPropertySchema!.value,
     });
 
     return dbModelResponse<SetProperty>({ value: this });
@@ -224,7 +225,7 @@ export default class SetProperty implements SetPropertyInterface {
       } catch (err) {
         return {
           status: ResponseStatus.FAILURE,
-          errorMessage: errorResponse(err),
+          errorMessage: errorResponse(err, "SetProperty.remove"),
         };
       }
       return {
@@ -238,6 +239,22 @@ export default class SetProperty implements SetPropertyInterface {
 
   _updateSetPropertyfields(properties: Partial<SetPropertyInterface>) {
     Object.assign(this, properties);
+  }
+
+  async getSet() {
+    if (this.set) {
+      return this.set;
+    }
+
+    const set = await db.query.exerciseSets.findFirst({
+      where: eq(exerciseSets.id, this.setId),
+    });
+
+    if (!set) {
+      return null;
+    }
+
+    return new ExerciseSet(set);
   }
 
   // Getters

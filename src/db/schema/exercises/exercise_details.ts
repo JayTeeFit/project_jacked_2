@@ -45,5 +45,5 @@ export const exerciseDetailsRelations = relations(
   })
 );
 
-export type ExerciseDetailsSchema = typeof exerciseDetails.$inferSelect;
-export type NewExerciseDetailsSchema = typeof exerciseDetails.$inferInsert;
+export type ExerciseDetailSchema = typeof exerciseDetails.$inferSelect;
+export type NewExerciseDetailSchema = typeof exerciseDetails.$inferInsert;

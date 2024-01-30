@@ -1,0 +1,1 @@
+ALTER TABLE "exercise_sets" ALTER COLUMN "actual_weight" SET DATA TYPE numeric(7, 2);

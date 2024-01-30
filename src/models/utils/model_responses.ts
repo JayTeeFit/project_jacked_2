@@ -25,6 +25,6 @@ export function dbModelResponse<T>(
   };
 }
 
-export function errorResponse(err: unknown) {
-  return getErrorMessage(err) || "unknown error";
+export function errorResponse(err: unknown, location: string) {
+  return `${location}: ` + getErrorMessage(err);
 }

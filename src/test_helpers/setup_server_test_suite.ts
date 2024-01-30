@@ -9,7 +9,7 @@ import {
 import { drizzle } from "drizzle-orm/node-postgres";
 import { migrate } from "drizzle-orm/node-postgres/migrator";
 import * as schema from "src/db/schema";
-import { sql } from "drizzle-orm";
+import { Logger, sql } from "drizzle-orm";
 
 export const DEFAULT_TEST_TIMEOUT = 60 * 1000;
 
@@ -29,7 +29,8 @@ export async function setupDockerTestContainer(): Promise<StartedPostgreSqlConta
 }
 
 export async function setupTestDb(
-  container: StartedPostgreSqlContainer
+  container: StartedPostgreSqlContainer,
+  optConfig?: { logger?: boolean | Logger }
 ): Promise<Client> {
   const client = new Client({
     host: container.getHost(),
@@ -40,7 +41,7 @@ export async function setupTestDb(
   });
 
   client.connect();
-  const db = drizzle(client, { schema });
+  const db = drizzle(client, { schema, logger: optConfig?.logger });
 
   await migrate(db, { migrationsFolder: "drizzle" });
 
@@ -49,7 +50,11 @@ export async function setupTestDb(
   return client;
 }
 
-export function dbTestSuite(suiteName: string, testBlock: () => void) {
+export function dbTestSuite(
+  suiteName: string,
+  testBlock: () => void,
+  optConfig?: { logger?: boolean | Logger }
+) {
   suite(suiteName, () => {
     let container: StartedPostgreSqlContainer;
     let client: Client;
@@ -59,7 +64,7 @@ export function dbTestSuite(suiteName: string, testBlock: () => void) {
     }, DEFAULT_TEST_TIMEOUT);
 
     beforeEach(async () => {
-      client = await setupTestDb(container);
+      client = await setupTestDb(container, { logger: optConfig?.logger });
     });
 
     afterEach(async () => {

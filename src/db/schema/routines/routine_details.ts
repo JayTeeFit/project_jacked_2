@@ -11,10 +11,12 @@ import {
 export const routineDetails = pgTable("routine_details", {
   id: serial("id").primaryKey(),
   name: text("name"),
-  description: text("name"),
-  creatorId: integer("creator_id").references(() => users.id, {
-    onDelete: "cascade",
-  }),
+  description: text("description"),
+  creatorId: integer("creator_id")
+    .references(() => users.id, {
+      onDelete: "cascade",
+    })
+    .notNull(),
   ...createdAndUpdatedAtColumns(),
   ...trashableObjectColumns(),
 });

@@ -101,7 +101,7 @@ export default class User implements UserSchema {
           .returning();
       } catch (err) {
         return User._userCreateResult({
-          error: errorResponse(err),
+          error: errorResponse(err, "User.create"),
         });
       }
       return User._userCreateResult({ userSchema, userProfileSchema });
@@ -203,7 +203,7 @@ export default class User implements UserSchema {
           .returning();
       } catch (err) {
         return this._userUpdateResult({
-          error: errorResponse(err),
+          error: errorResponse(err, "User.updateUser"),
         });
       }
       return this._userUpdateResult({ userSchema });
@@ -235,7 +235,7 @@ export default class User implements UserSchema {
       } catch (err) {
         return {
           status: ResponseStatus.FAILURE,
-          errorMessage: errorResponse(err),
+          errorMessage: errorResponse(err, "User.remove"),
         };
       }
       return {

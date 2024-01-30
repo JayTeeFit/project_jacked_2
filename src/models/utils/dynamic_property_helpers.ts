@@ -62,10 +62,7 @@ function isRangeValid(value: string, rangeType: "integer" | "decimal") {
   return isValid;
 }
 
-export function cleanValueInput(value: string | null, dataType: DataType) {
-  if (!value) {
-    return null;
-  }
+export function cleanValueInput(value: string, dataType: DataType) {
   switch (dataType) {
     case "decimal":
     case "integer":
@@ -84,7 +81,7 @@ function dataTypeSupportsRange(dataType: DataType) {
 }
 
 export function cleanAndValidateValueInput<T>(
-  value: string | null,
+  value: string,
   dataType: DataType,
   propertyName: T,
   isRange = false
@@ -100,10 +97,6 @@ export function cleanAndValidateValueInput<T>(
 
   if (newValue instanceof Error) {
     return { value: null, error: newValue };
-  }
-
-  if (!newValue) {
-    return { value: null, error: null };
   }
 
   const error = validateValueInput(newValue, dataType, propertyName, isRange);

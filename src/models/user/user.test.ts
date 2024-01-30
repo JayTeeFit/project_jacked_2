@@ -6,33 +6,37 @@ import Sinon from "sinon";
 import { eq } from "drizzle-orm";
 import { ResponseStatus } from "src/models/utils/model_responses";
 import { userProfiles } from "src/db/schema";
+import {
+  createDefaultUser,
+  defaultTestUserSchema,
+} from "src/models/utils/user_test_helpers";
 
 dbTestSuite("UserModel", () => {
-  const defaultTestUserSchema = {
-    username: "rengebre",
-    email: "russell@email.com",
-    isClaimed: true,
-    isAdmin: true,
-  };
-  const defaultTestUserProfileSchema = {
-    firstName: "Russell",
-    lastName: "Engebretson",
-    aboutMe: "Founder of this beautiful application",
-  };
+  // const defaultTestUserSchema = {
+  //   username: "rengebre",
+  //   email: "russell@email.com",
+  //   isClaimed: true,
+  //   isAdmin: true,
+  // };
+  // const defaultTestUserProfileSchema = {
+  //   firstName: "Russell",
+  //   lastName: "Engebretson",
+  //   aboutMe: "Founder of this beautiful application",
+  // };
 
-  async function createDefaultUser(
-    addUserProperties: Partial<NewUserSchema>,
-    withProfile?: boolean
-  ) {
-    const userSchema = {
-      ...defaultTestUserSchema,
-      ...addUserProperties,
-    };
-    const user = await User.create(userSchema, {
-      profileInfo: withProfile ? defaultTestUserProfileSchema : undefined,
-    });
-    return user.value;
-  }
+  // async function createDefaultUser(
+  //   addUserProperties: Partial<NewUserSchema>,
+  //   withProfile?: boolean
+  // ) {
+  //   const userSchema = {
+  //     ...defaultTestUserSchema,
+  //     ...addUserProperties,
+  //   };
+  //   const user = await User.create(userSchema, {
+  //     profileInfo: withProfile ? defaultTestUserProfileSchema : undefined,
+  //   });
+  //   return user.value;
+  // }
 
   suite("Create", () => {
     test("can create a user", async () => {

@@ -10,6 +10,8 @@ import { ExertionUnit, WeightUnit } from "src/db/schema/types/units";
 import SetProperty from "src/models/exercise_set/set_property";
 import {
   DbModelResponse,
+  RemoveResponse,
+  ResponseStatus,
   dbModelResponse,
   errorResponse,
 } from "src/models/utils/model_responses";
@@ -62,7 +64,7 @@ export default class ExerciseSet implements ExerciseSetSchema {
           .returning();
       } catch (err) {
         return ExerciseSet._setCreateResult({
-          error: errorResponse(err),
+          error: errorResponse(err, "ExerciseSet.create"),
         });
       }
       return ExerciseSet._setCreateResult({ setSchema });
@@ -105,6 +107,7 @@ export default class ExerciseSet implements ExerciseSetSchema {
       properties[pjs.properties_for_sets.name] = new SetProperty({
         ...pjs.set_properties,
         property: pjs.properties_for_sets,
+        set: this,
       });
     });
 
@@ -112,34 +115,25 @@ export default class ExerciseSet implements ExerciseSetSchema {
     return this.properties;
   }
 
-  async setProperties(
-    newProperties: Record<PropertyForSetName, string | null>
-  ) {
-    const setProperties = await this.getProperties();
+  async setProperty(propertyName: PropertyForSetName, newValue: string) {
+    const exerciseSetProperties = await this.getProperties();
+    const property = exerciseSetProperties[propertyName];
+    let result: DbModelResponse<SetProperty>;
 
-    const newPropertyKeys = Object.keys(newProperties) as PropertyForSetName[];
-
-    newPropertyKeys.forEach((propertyName) => {
-      const property = setProperties[propertyName];
-      if (property) {
-        property.updatePropertyValueOrRemove(newProperties[propertyName]);
-      } else {
-        const propertyValue = newProperties[propertyName];
-
-        if (!propertyValue) {
-          return;
-        }
-
-        this.addProperty(propertyName, propertyValue);
-      }
-    });
+    if (property) {
+      result = await property.updatePropertyValue(newValue);
+    } else {
+      result = await this.addProperty(propertyName, newValue);
+    }
   }
 
-  async addProperty(name: PropertyForSetName, value: string | null) {
+  async addProperty(name: PropertyForSetName, value: string) {
     const setProperties = await this.getProperties();
     const setProperty = setProperties[name];
     if (setProperty || !value) {
-      return;
+      return dbModelResponse<SetProperty>({
+        errorMessage: "Property already exists or value is null",
+      });
     }
 
     const { value: newProperty, errorMessage } = await SetProperty.create({
@@ -152,7 +146,41 @@ export default class ExerciseSet implements ExerciseSetSchema {
       throw new Error(errorMessage);
     }
 
-    setProperties[newProperty!.name] = newProperty as SetProperty;
+    this._updatePropertiesMap({ [newProperty!.name]: newProperty });
+    return dbModelResponse<SetProperty>({ value: newProperty! });
+  }
+
+  async removeProperty(name: PropertyForSetName): Promise<RemoveResponse> {
+    const setProperties = await this.getProperties();
+    const setProperty = setProperties[name];
+    if (!setProperty) {
+      return {
+        status: ResponseStatus.FAILURE,
+        errorMessage: `No property ${name} on set ${this.id}`,
+      };
+    }
+
+    const { status, errorMessage } = await setProperty.remove();
+
+    if (status === ResponseStatus.FAILURE) {
+      return {
+        status,
+        errorMessage,
+      };
+    } else {
+      delete setProperties[name];
+      return {
+        status: ResponseStatus.SUCCESS,
+        errorMessage: null,
+      };
+    }
+  }
+
+  async _updatePropertiesMap(newPropertyMap: {
+    [K in PropertyForSetName]?: SetProperty;
+  }) {
+    const setPropertiesMap = await this.getProperties();
+    Object.assign(setPropertiesMap, newPropertyMap);
   }
 
   // Getters
