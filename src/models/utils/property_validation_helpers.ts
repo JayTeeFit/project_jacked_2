@@ -32,13 +32,14 @@ export function validateValueInput<T>(
       if (isRange) {
         isError = !isRangeValid(value, dataType);
       } else {
-        isError = !parseInt(value);
+        isError = !isInteger(value);
       }
       break;
     case "boolean":
       isError = !(value === "false" || value === "true");
       break;
     case "string":
+      isError = typeof value !== "string";
       break;
     default:
       errorMessage = ValueValidationError.UNKNOWN_DATATYPE;
@@ -47,25 +48,37 @@ export function validateValueInput<T>(
   return isError ? new Error(errorMessage) : null;
 }
 
+export function isInteger(value: string) {
+  if (!value) {
+    return false;
+  }
+  const num = Number(value);
+  return !isNaN(num) && Number.isInteger(num);
+}
+
 function isRangeValid(value: string, rangeType: "integer" | "decimal") {
   const rangeValues = value.split("-");
-  let isValid = true;
   if (rangeValues.length !== 2) {
-    isValid = false;
-  } else {
-    rangeValues.forEach((value) => {
-      isValid =
-        rangeType === "integer" ? !!parseInt(value) : !!parseFloat(value);
-    });
+    return false;
+  }
+  for (const value of rangeValues) {
+    if (rangeType === "integer" ? !isInteger(value) : !parseFloat(value)) {
+      return false;
+    }
   }
 
-  return isValid;
+  return true;
 }
 
 export function cleanValueInput(value: string, dataType: DataType) {
+  value = value.trim();
   switch (dataType) {
     case "decimal":
     case "integer":
+      return value
+        .split("-")
+        .map((entry) => entry.trim())
+        .join("-");
     case "string":
       return value;
     case "boolean":
@@ -101,5 +114,9 @@ export function cleanAndValidateValueInput<T>(
 
   const error = validateValueInput(newValue, dataType, propertyName, isRange);
 
-  return { value: newValue, error };
+  if (error) {
+    return { value: null, error };
+  }
+
+  return { value: newValue, error: null };
 }

@@ -13,7 +13,7 @@ import { DataType } from "src/db/schema/types/dynamic_properties";
 import { PropertyForSetName } from "src/db/schema/types/sets";
 import ExerciseSet from "src/models/exercise_set/exercise_set";
 import PropertyForSet from "src/models/exercise_set/property_for_set";
-import { cleanAndValidateValueInput } from "src/models/utils/dynamic_property_helpers";
+import { cleanAndValidateValueInput } from "src/models/utils/property_validation_helpers";
 import {
   DbModelResponse,
   RemoveResponse,
