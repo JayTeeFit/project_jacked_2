@@ -6,8 +6,8 @@ export type ValueValidationResponse = {
 };
 
 export enum ValueValidationError {
-  DATATYPE_DOESNT_SUPPORT_RANGE = "DataType doesn't support range",
-  UNKNOWN_DATATYPE = "Unknown dataType",
+  DATATYPE_DOESNT_SUPPORT_RANGE = "DATATYPE_DOESNT_SUPPORT_RANGE",
+  UNKNOWN_DATATYPE = "UNKNOWN_DATATYPE",
 }
 
 export function validateValueInput<T>(
@@ -16,6 +16,10 @@ export function validateValueInput<T>(
   propertyName: T,
   isRange = false
 ) {
+  if (isRange && !dataTypeSupportsRange(dataType)) {
+    return new Error(ValueValidationError.DATATYPE_DOESNT_SUPPORT_RANGE);
+  }
+
   const errorMessageIsRange = isRange ? `range of ` : "";
   let errorMessage = `Property value validation failure: Not a ${errorMessageIsRange}${dataType}: propertyName: ${propertyName}, value: ${value}`;
   let isError = false;
@@ -25,7 +29,7 @@ export function validateValueInput<T>(
       if (isRange) {
         isError = !isRangeValid(value, dataType);
       } else {
-        isError = !parseFloat(value);
+        isError = !isDecimal(value);
       }
       break;
     case "integer":
@@ -56,13 +60,20 @@ export function isInteger(value: string) {
   return !isNaN(num) && Number.isInteger(num);
 }
 
+export function isDecimal(value: string) {
+  if (!value) {
+    return false;
+  }
+  return !isNaN(Number(value));
+}
+
 function isRangeValid(value: string, rangeType: "integer" | "decimal") {
   const rangeValues = value.split("-");
   if (rangeValues.length !== 2) {
     return false;
   }
   for (const value of rangeValues) {
-    if (rangeType === "integer" ? !isInteger(value) : !parseFloat(value)) {
+    if (rangeType === "integer" ? !isInteger(value) : !isDecimal(value)) {
       return false;
     }
   }
@@ -99,13 +110,6 @@ export function cleanAndValidateValueInput<T>(
   propertyName: T,
   isRange = false
 ): ValueValidationResponse {
-  if (isRange && !dataTypeSupportsRange(dataType)) {
-    return {
-      value: null,
-      error: new Error(ValueValidationError.DATATYPE_DOESNT_SUPPORT_RANGE),
-    };
-  }
-
   const newValue = cleanValueInput(value, dataType);
 
   if (newValue instanceof Error) {
@@ -119,4 +123,11 @@ export function cleanAndValidateValueInput<T>(
   }
 
   return { value: newValue, error: null };
+}
+
+export function isPropertyValueRange(value: string, dataType: DataType) {
+  if (!dataTypeSupportsRange(dataType)) {
+    return false;
+  }
+  return value.includes("-");
 }

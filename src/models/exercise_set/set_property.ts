@@ -13,7 +13,10 @@ import { DataType } from "src/db/schema/types/dynamic_properties";
 import { PropertyForSetName } from "src/db/schema/types/sets";
 import ExerciseSet from "src/models/exercise_set/exercise_set";
 import PropertyForSet from "src/models/exercise_set/property_for_set";
-import { cleanAndValidateValueInput } from "src/models/utils/property_validation_helpers";
+import {
+  cleanAndValidateValueInput,
+  isPropertyValueRange,
+} from "src/models/utils/property_validation_helpers";
 import {
   DbModelResponse,
   RemoveResponse,
@@ -79,14 +82,23 @@ export default class SetProperty implements SetPropertyInterface {
   static async create(
     attributes: CreateSetProperty
   ): Promise<DbModelResponse<SetProperty>> {
-    let property: PropertyForSet | null;
-
-    property = await PropertyForSet.findPropertyByName(attributes.propertyName);
+    const property = await PropertyForSet.findPropertyByName(
+      attributes.propertyName
+    );
 
     if (!property) {
       return dbModelResponse({
         errorMessage: `No property ${attributes.propertyName} exists`,
       });
+    }
+
+    const propertyShouldBeRange = isPropertyValueRange(
+      attributes.value,
+      property.dataType
+    );
+
+    if (propertyShouldBeRange !== attributes.isRange) {
+      attributes.isRange = propertyShouldBeRange;
     }
 
     const { value: cleanValue, error } = cleanAndValidateValueInput(
@@ -154,14 +166,25 @@ export default class SetProperty implements SetPropertyInterface {
     };
   }
 
+  _shouldUpdateIsRange(value: string) {
+    if (this.isRange !== isPropertyValueRange(value, this.dataType)) {
+      return true;
+    }
+
+    return false;
+  }
+
   async updatePropertyValue(
     newValue: string
   ): Promise<DbModelResponse<SetProperty>> {
+    const _shouldUpdateIsRange = this._shouldUpdateIsRange(newValue);
+    const isRange = _shouldUpdateIsRange ? !this.isRange : this.isRange;
+
     const { value: cleanValue, error } = cleanAndValidateValueInput(
       newValue,
       this.dataType,
       this.name,
-      this.isRange
+      isRange
     );
 
     if (error) {
@@ -181,7 +204,7 @@ export default class SetProperty implements SetPropertyInterface {
       try {
         [setPropertySchema] = await tx
           .update(setProperties)
-          .set({ value })
+          .set({ value, isRange })
           .where(
             and(
               eq(setProperties.setId, this.setId),
@@ -204,9 +227,9 @@ export default class SetProperty implements SetPropertyInterface {
       return dbModelResponse<SetProperty>({ errorMessage: result.error });
     }
 
-    this._updateSetPropertyfields({
-      value: result.setPropertySchema!.value,
-    });
+    this._updateSetPropertyfields(
+      result.setPropertySchema as SetPropertySchema
+    );
 
     return dbModelResponse<SetProperty>({ value: this });
   }

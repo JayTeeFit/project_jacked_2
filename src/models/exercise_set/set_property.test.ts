@@ -1,4 +1,10 @@
-import { ExerciseSetSchema, NewSetPropertySchema } from "src/db/schema";
+import { and, eq } from "drizzle-orm";
+import {
+  ExerciseSetSchema,
+  NewSetPropertySchema,
+  setProperties,
+} from "src/db/schema";
+import { PropertyForSetName } from "src/db/schema/types/sets";
 import SetProperty, {
   CreateSetProperty,
 } from "src/models/exercise_set/set_property";
@@ -44,7 +50,7 @@ dbTestSuite(
     });
 
     suite("Create", () => {
-      test("Creates new set properties", async () => {
+      test("Creates new set property", async () => {
         const propertyCreateSchema: CreateSetProperty = {
           setId: exerciseSets[0].id,
           propertyName: "expExertion",
@@ -104,7 +110,7 @@ dbTestSuite(
         );
       });
 
-      test("Can assign identical properties to different sets", async () => {
+      test("Can assign properties to different sets", async () => {
         const propertyCreateSchema: CreateSetProperty = {
           setId: exerciseSets[0].id,
           propertyName: "expExertion",
@@ -126,6 +132,46 @@ dbTestSuite(
           /* shouldError */ false
         );
       });
+
+      test("Returns error if property value invalid", async () => {
+        const propertyCreateSchema: CreateSetProperty = {
+          setId: exerciseSets[0].id,
+          propertyName: "expExertion",
+          value: "abc",
+        };
+
+        await createProperty(propertyCreateSchema, /* shouldError */ true);
+      });
+
+      test("Sets isRange true for input value range", async () => {
+        const propertyCreateSchema: CreateSetProperty = {
+          setId: exerciseSets[0].id,
+          propertyName: "expExertion",
+          value: "8-10",
+        };
+
+        const property = await createProperty(
+          propertyCreateSchema,
+          /* shouldError */ false
+        );
+
+        expect(property!.isRange).toBe(true);
+      });
+
+      test("Sets isRange false correctly", async () => {
+        const propertyCreateSchema: CreateSetProperty = {
+          setId: exerciseSets[0].id,
+          propertyName: "expExertion",
+          value: "8",
+        };
+
+        const property = await createProperty(
+          propertyCreateSchema,
+          /* shouldError */ false
+        );
+
+        expect(property!.isRange).toBe(false);
+      });
     });
 
     suite("updatePropertyValue", () => {
@@ -145,6 +191,69 @@ dbTestSuite(
 
         expect(property!.name).toBe("expExertion");
         expect(property!.value).toBe("9");
+      });
+
+      test("Returns error if value is invalid", async () => {
+        const propertyCreateSchema: CreateSetProperty = {
+          setId: exerciseSets[0].id,
+          propertyName: "expExertion",
+          value: "8",
+        };
+
+        const property = await createProperty(
+          propertyCreateSchema,
+          /* shouldError */ false
+        );
+
+        const { errorMessage } = await property!.updatePropertyValue("abc");
+
+        expect(errorMessage).not.toBeNull();
+        expect(property!.value).toBe("8");
+      });
+
+      test("Returns error if value is null", async () => {
+        const propertyCreateSchema: CreateSetProperty = {
+          setId: exerciseSets[0].id,
+          propertyName: "expExertion",
+          value: "8",
+        };
+
+        const property = await createProperty(
+          propertyCreateSchema,
+          /* shouldError */ false
+        );
+
+        const { errorMessage } = await property!.updatePropertyValue("");
+
+        expect(errorMessage).not.toBeNull();
+        expect(property!.value).toBe("8");
+      });
+
+      test("Updates property isRange if allowed", async () => {
+        const propertyCreateSchema: CreateSetProperty = {
+          setId: exerciseSets[0].id,
+          propertyName: "expExertion",
+          value: "8",
+        };
+
+        const property = await createProperty(
+          propertyCreateSchema,
+          /* shouldError */ false
+        );
+
+        expect(property!.isRange).toBe(false);
+
+        let { errorMessage } = await property!.updatePropertyValue("8-10");
+
+        expect(errorMessage).toBeNull();
+        expect(property!.value).toBe("8-10");
+        expect(property!.isRange).toBe(true);
+
+        ({ errorMessage } = await property!.updatePropertyValue("8"));
+
+        expect(errorMessage).toBeNull();
+        expect(property!.value).toBe("8");
+        expect(property!.isRange).toBe(false);
       });
     });
 
