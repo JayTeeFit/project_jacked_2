@@ -75,7 +75,7 @@ export default class ExerciseSet implements ExerciseSetSchema {
     }
 
     const exerciseSet = new ExerciseSet({
-      ...(result.setSchema as ExerciseSetSchema),
+      ...result.setSchema!,
     });
 
     return dbModelResponse({ value: exerciseSet });
@@ -115,24 +115,13 @@ export default class ExerciseSet implements ExerciseSetSchema {
     return this.properties;
   }
 
-  async setProperty(propertyName: PropertyForSetName, newValue: string) {
-    const exerciseSetProperties = await this.getProperties();
-    const property = exerciseSetProperties[propertyName];
-    let result: DbModelResponse<SetProperty>;
-
-    if (property) {
-      result = await property.updatePropertyValue(newValue);
-    } else {
-      result = await this.addProperty(propertyName, newValue);
-    }
-  }
-
   async addProperty(name: PropertyForSetName, value: string) {
     const setProperties = await this.getProperties();
     const setProperty = setProperties[name];
-    if (setProperty || !value) {
+
+    if (setProperty) {
       return dbModelResponse<SetProperty>({
-        errorMessage: "Property already exists or value is null",
+        errorMessage: "Property already exists",
       });
     }
 
@@ -143,11 +132,25 @@ export default class ExerciseSet implements ExerciseSetSchema {
     });
 
     if (errorMessage) {
-      throw new Error(errorMessage);
+      return dbModelResponse<SetProperty>({ errorMessage });
     }
 
     this._updatePropertiesMap({ [newProperty!.name]: newProperty });
     return dbModelResponse<SetProperty>({ value: newProperty! });
+  }
+
+  async setProperty(propertyName: PropertyForSetName, newValue: string) {
+    const exerciseSetProperties = await this.getProperties();
+    const property = exerciseSetProperties[propertyName];
+    let result: DbModelResponse<SetProperty>;
+
+    if (property) {
+      result = await property.updatePropertyValue(newValue);
+    } else {
+      result = await this.addProperty(propertyName, newValue);
+    }
+
+    return result;
   }
 
   async removeProperty(name: PropertyForSetName): Promise<RemoveResponse> {

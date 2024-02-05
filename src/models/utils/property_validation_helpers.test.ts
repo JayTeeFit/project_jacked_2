@@ -11,8 +11,8 @@ suite("ValidationHelpers", () => {
         const value = "8";
         const dataType = "integer";
         const propertyName = "expExertion";
-        const result = validateValueInput(value, dataType, propertyName);
-        expect(result).toBeNull();
+        const error = validateValueInput(value, dataType, propertyName);
+        expect(error).toBeNull();
       });
 
       test("for valid decimal", () => {
@@ -20,12 +20,12 @@ suite("ValidationHelpers", () => {
         const propertyName = "expWeight";
 
         let value = "1.5";
-        let result = validateValueInput(value, dataType, propertyName);
-        expect(result).toBeNull();
+        let error = validateValueInput(value, dataType, propertyName);
+        expect(error).toBeNull();
 
         value = "1";
-        result = validateValueInput(value, dataType, propertyName);
-        expect(result).toBeNull();
+        error = validateValueInput(value, dataType, propertyName);
+        expect(error).toBeNull();
       });
 
       test("for valid boolean", () => {
@@ -33,12 +33,12 @@ suite("ValidationHelpers", () => {
         const propertyName = "expIsWarmup";
 
         let value = "true";
-        let result = validateValueInput(value, dataType, propertyName);
-        expect(result).toBeNull();
+        let error = validateValueInput(value, dataType, propertyName);
+        expect(error).toBeNull();
 
         value = "false";
-        result = validateValueInput(value, dataType, propertyName);
-        expect(result).toBeNull();
+        error = validateValueInput(value, dataType, propertyName);
+        expect(error).toBeNull();
       });
 
       test("for valid string", () => {
@@ -46,12 +46,12 @@ suite("ValidationHelpers", () => {
         const propertyName = "expNotes";
 
         let value = "abc";
-        let result = validateValueInput(value, dataType, propertyName);
-        expect(result).toBeNull();
+        let error = validateValueInput(value, dataType, propertyName);
+        expect(error).toBeNull();
 
         value = "true";
-        result = validateValueInput(value, dataType, propertyName);
-        expect(result).toBeNull();
+        error = validateValueInput(value, dataType, propertyName);
+        expect(error).toBeNull();
       });
     });
 
@@ -61,16 +61,20 @@ suite("ValidationHelpers", () => {
         const propertyName = "expExertion";
 
         let value = "abc";
-        let result = validateValueInput(value, dataType, propertyName);
-        expect(result).not.toBeNull();
+        let error = validateValueInput(value, dataType, propertyName);
+        expect(error).not.toBeNull();
 
         value = "1.5";
-        result = validateValueInput(value, dataType, propertyName);
-        expect(result).not.toBeNull();
+        error = validateValueInput(value, dataType, propertyName);
+        expect(error).not.toBeNull();
 
         value = "true";
-        result = validateValueInput(value, dataType, propertyName);
-        expect(result).not.toBeNull();
+        error = validateValueInput(value, dataType, propertyName);
+        expect(error).not.toBeNull();
+
+        value = "";
+        error = validateValueInput(value, dataType, propertyName);
+        expect(error).not.toBeNull();
       });
 
       test("for invalid decimal", () => {
@@ -78,16 +82,20 @@ suite("ValidationHelpers", () => {
         const propertyName = "expWeight";
 
         let value = "abc";
-        let result = validateValueInput(value, dataType, propertyName);
-        expect(result).not.toBeNull();
+        let error = validateValueInput(value, dataType, propertyName);
+        expect(error).not.toBeNull();
 
         value = "true";
-        result = validateValueInput(value, dataType, propertyName);
-        expect(result).not.toBeNull();
+        error = validateValueInput(value, dataType, propertyName);
+        expect(error).not.toBeNull();
 
         value = "4.a";
-        result = validateValueInput(value, dataType, propertyName);
-        expect(result).not.toBeNull();
+        error = validateValueInput(value, dataType, propertyName);
+        expect(error).not.toBeNull();
+
+        value = "";
+        error = validateValueInput(value, dataType, propertyName);
+        expect(error).not.toBeNull();
       });
 
       test("for invalid boolean", () => {
@@ -95,20 +103,24 @@ suite("ValidationHelpers", () => {
         const propertyName = "expIsWarmup";
 
         let value = "abc";
-        let result = validateValueInput(value, dataType, propertyName);
-        expect(result).not.toBeNull();
+        let error = validateValueInput(value, dataType, propertyName);
+        expect(error).not.toBeNull();
 
         value = "1";
-        result = validateValueInput(value, dataType, propertyName);
-        expect(result).not.toBeNull();
+        error = validateValueInput(value, dataType, propertyName);
+        expect(error).not.toBeNull();
 
         value = "True";
-        result = validateValueInput(value, dataType, propertyName);
-        expect(result).not.toBeNull();
+        error = validateValueInput(value, dataType, propertyName);
+        expect(error).not.toBeNull();
 
         value = "False";
-        result = validateValueInput(value, dataType, propertyName);
-        expect(result).not.toBeNull();
+        error = validateValueInput(value, dataType, propertyName);
+        expect(error).not.toBeNull();
+
+        value = "";
+        error = validateValueInput(value, dataType, propertyName);
+        expect(error).not.toBeNull();
       });
 
       test("for invalid string", () => {
@@ -116,8 +128,12 @@ suite("ValidationHelpers", () => {
         const propertyName = "expNotes";
 
         let value = true as unknown as string;
-        let result = validateValueInput(value, dataType, propertyName);
-        expect(result).not.toBeNull();
+        let error = validateValueInput(value, dataType, propertyName);
+        expect(error).not.toBeNull();
+
+        value = "";
+        error = validateValueInput(value, dataType, propertyName);
+        expect(error).not.toBeNull();
       });
 
       test("for range on non-range property", () => {
@@ -125,12 +141,12 @@ suite("ValidationHelpers", () => {
         const propertyName = "expNotes";
 
         let value = "8-10";
-        let result = validateValueInput(value, dataType, propertyName);
-        expect(result).not.toBeNull();
+        let error = validateValueInput(value, dataType, propertyName);
+        expect(error).not.toBeNull();
 
         value = "8.0-10.0";
-        result = validateValueInput(value, "decimal", propertyName);
-        expect(result).not.toBeNull();
+        error = validateValueInput(value, "decimal", propertyName);
+        expect(error).not.toBeNull();
       });
     });
 
@@ -141,12 +157,12 @@ suite("ValidationHelpers", () => {
           const propertyName = "expReps";
 
           let value = "8-10";
-          let result = validateValueInput(value, dataType, propertyName, true);
-          expect(result).toBeNull();
+          let error = validateValueInput(value, dataType, propertyName, true);
+          expect(error).toBeNull();
 
           value = "8 - 10";
-          result = validateValueInput(value, dataType, propertyName, true);
-          expect(result).toBeNull();
+          error = validateValueInput(value, dataType, propertyName, true);
+          expect(error).toBeNull();
         });
 
         test("for valid decimal range", () => {
@@ -154,12 +170,12 @@ suite("ValidationHelpers", () => {
           const propertyName = "expWeight";
 
           let value = "1.5-2.5";
-          let result = validateValueInput(value, dataType, propertyName, true);
-          expect(result).toBeNull();
+          let error = validateValueInput(value, dataType, propertyName, true);
+          expect(error).toBeNull();
 
           value = "1-2";
-          result = validateValueInput(value, dataType, propertyName, true);
-          expect(result).toBeNull();
+          error = validateValueInput(value, dataType, propertyName, true);
+          expect(error).toBeNull();
         });
       });
 
@@ -169,28 +185,28 @@ suite("ValidationHelpers", () => {
           const propertyName = "expReps";
 
           let value = "8-abc";
-          let result = validateValueInput(value, dataType, propertyName, true);
-          expect(result).not.toBeNull();
+          let error = validateValueInput(value, dataType, propertyName, true);
+          expect(error).not.toBeNull();
 
           value = "8-1.5";
-          result = validateValueInput(value, dataType, propertyName, true);
-          expect(result).not.toBeNull();
+          error = validateValueInput(value, dataType, propertyName, true);
+          expect(error).not.toBeNull();
 
           value = "-810";
-          result = validateValueInput(value, dataType, propertyName, true);
-          expect(result).not.toBeNull();
+          error = validateValueInput(value, dataType, propertyName, true);
+          expect(error).not.toBeNull();
 
           value = "-81";
-          result = validateValueInput(value, dataType, propertyName, true);
-          expect(result).not.toBeNull();
+          error = validateValueInput(value, dataType, propertyName, true);
+          expect(error).not.toBeNull();
 
           value = "8";
-          result = validateValueInput(value, dataType, propertyName, true);
-          expect(result).not.toBeNull();
+          error = validateValueInput(value, dataType, propertyName, true);
+          expect(error).not.toBeNull();
 
           value = "8.0";
-          result = validateValueInput(value, dataType, propertyName, true);
-          expect(result).not.toBeNull();
+          error = validateValueInput(value, dataType, propertyName, true);
+          expect(error).not.toBeNull();
         });
 
         test("for invalid decimal range", () => {
@@ -198,20 +214,20 @@ suite("ValidationHelpers", () => {
           const propertyName = "expWeight";
 
           let value = "abc-2.5";
-          let result = validateValueInput(value, dataType, propertyName, true);
-          expect(result).not.toBeNull();
+          let error = validateValueInput(value, dataType, propertyName, true);
+          expect(error).not.toBeNull();
 
           value = "1.5-abc";
-          result = validateValueInput(value, dataType, propertyName, true);
-          expect(result).not.toBeNull();
+          error = validateValueInput(value, dataType, propertyName, true);
+          expect(error).not.toBeNull();
 
           value = "-1.5";
-          result = validateValueInput(value, dataType, propertyName, true);
-          expect(result).not.toBeNull();
+          error = validateValueInput(value, dataType, propertyName, true);
+          expect(error).not.toBeNull();
 
           value = "1.5--2.5";
-          result = validateValueInput(value, dataType, propertyName, true);
-          expect(result).not.toBeNull();
+          error = validateValueInput(value, dataType, propertyName, true);
+          expect(error).not.toBeNull();
         });
       });
     });
@@ -224,21 +240,21 @@ suite("ValidationHelpers", () => {
         const propertyName = "expExertion";
 
         let value = "8";
-        let result = cleanAndValidateValueInput(value, dataType, propertyName);
-        expect(result.value).toBe(value);
+        let error = cleanAndValidateValueInput(value, dataType, propertyName);
+        expect(error.value).toBe(value);
 
         let valueWithSpaces = " " + value + " ";
-        result = cleanAndValidateValueInput(
+        error = cleanAndValidateValueInput(
           valueWithSpaces,
           dataType,
           propertyName
         );
-        expect(result.value).toBe(value);
+        expect(error.value).toBe(value);
 
         value = "True";
         dataType = "boolean";
-        result = cleanAndValidateValueInput(value, dataType, propertyName);
-        expect(result.value).toBe(value.toLowerCase());
+        error = cleanAndValidateValueInput(value, dataType, propertyName);
+        expect(error.value).toBe(value.toLowerCase());
       });
 
       test("for valid input range", () => {
@@ -249,22 +265,22 @@ suite("ValidationHelpers", () => {
         const value2 = "10.0";
         const value = `${value1}-${value2}`;
 
-        let result = cleanAndValidateValueInput(
+        let error = cleanAndValidateValueInput(
           value,
           dataType,
           propertyName,
           true
         );
-        expect(result.value).toBe(value);
+        expect(error.value).toBe(value);
 
         let valueWithSpaces = ` ${value1} - ${value2}`;
-        result = cleanAndValidateValueInput(
+        error = cleanAndValidateValueInput(
           valueWithSpaces,
           dataType,
           propertyName,
           true
         );
-        expect(result.value).toBe(value);
+        expect(error.value).toBe(value);
       });
     });
 
@@ -273,25 +289,21 @@ suite("ValidationHelpers", () => {
         const propertyName = "expExertion";
         const dataType = "string";
         const value = "8";
-        const result = cleanAndValidateValueInput(
+        const error = cleanAndValidateValueInput(
           value,
           dataType,
           propertyName,
           true
         );
-        expect(result.error).not.toBeNull();
+        expect(error.error).not.toBeNull();
       });
 
       test("for invalid datatype", () => {
         const propertyName = "expExertion";
         const dataType = "unknown" as DataType;
         const value = "8";
-        const result = cleanAndValidateValueInput(
-          value,
-          dataType,
-          propertyName
-        );
-        expect(result.error).not.toBeNull();
+        const error = cleanAndValidateValueInput(value, dataType, propertyName);
+        expect(error.error).not.toBeNull();
       });
     });
   });

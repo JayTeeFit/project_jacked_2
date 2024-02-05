@@ -7,6 +7,7 @@ export type ValueValidationResponse = {
 
 export enum ValueValidationError {
   DATATYPE_DOESNT_SUPPORT_RANGE = "DATATYPE_DOESNT_SUPPORT_RANGE",
+  EMPTY_VALUE = "EMPTY_VALUE",
   UNKNOWN_DATATYPE = "UNKNOWN_DATATYPE",
 }
 
@@ -16,6 +17,10 @@ export function validateValueInput<T>(
   propertyName: T,
   isRange = false
 ) {
+  if (!value) {
+    return new Error(ValueValidationError.EMPTY_VALUE);
+  }
+
   if (isRange && !dataTypeSupportsRange(dataType)) {
     return new Error(ValueValidationError.DATATYPE_DOESNT_SUPPORT_RANGE);
   }

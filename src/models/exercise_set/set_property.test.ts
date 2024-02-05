@@ -1,16 +1,9 @@
-import { and, eq } from "drizzle-orm";
-import {
-  ExerciseSetSchema,
-  NewSetPropertySchema,
-  setProperties,
-} from "src/db/schema";
-import { PropertyForSetName } from "src/db/schema/types/sets";
-import SetProperty, {
-  CreateSetProperty,
-} from "src/models/exercise_set/set_property";
+import { ExerciseSetSchema } from "src/db/schema";
+import { CreateSetProperty } from "src/models/exercise_set/set_property";
 import User from "src/models/user/user";
 import { ResponseStatus } from "src/models/utils/model_responses";
 import { seedPropertiesForSets } from "src/models/utils/property_for_set_test_helpers";
+import { createProperty } from "src/models/utils/set_property_test_helpers";
 import { seedRoutines } from "src/models/utils/temp_test_helpers";
 import { createDefaultUser } from "src/models/utils/user_test_helpers";
 import { dbTestSuite } from "src/test_helpers/setup_server_test_suite";
@@ -20,26 +13,6 @@ dbTestSuite(
   () => {
     let exerciseSets: ExerciseSetSchema[];
     let user: User | null;
-
-    async function createProperty(
-      propertySchema: CreateSetProperty,
-      shouldError = false
-    ) {
-      const { value: property, errorMessage } = await SetProperty.create(
-        propertySchema
-      );
-
-      if (shouldError) {
-        expect(errorMessage).not.toBeNull();
-        expect(property).toBeNull();
-        return null;
-      }
-
-      expect(errorMessage).toBeNull();
-      expect(property).not.toBeNull();
-
-      return property;
-    }
 
     beforeEach(async () => {
       await seedPropertiesForSets();
