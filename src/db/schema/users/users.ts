@@ -15,6 +15,10 @@ import {
 import { routineDetails, userRoutines } from "src/db/schema/routines";
 import { userTrainingDays } from "src/db/schema/training_days";
 
+// IMPORTANT: There is a lowercase unique index constraint on username added manually to custom migration file.
+// CREATE UNIQUE INDEX IF NOT EXISTS users_username_ci_idx ON users ((LOWER(username)));
+// Ensure this is either not removed or re-generated if you reset migration files
+
 export const users = pgTable("users", {
   id: serial("id").primaryKey(),
   username: varchar("username", { length: 15 }).notNull(),
