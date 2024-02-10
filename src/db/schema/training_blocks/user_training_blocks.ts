@@ -13,9 +13,11 @@ export const userTrainingBlocks = pgTable("user_training_blocks", {
   userId: integer("user_id")
     .references(() => users.id, { onDelete: "cascade" })
     .notNull(),
-  detailId: integer("detail_id").references(() => trainingBlockDetails.id, {
-    onDelete: "restrict",
-  }),
+  detailId: integer("detail_id")
+    .references(() => trainingBlockDetails.id, {
+      onDelete: "restrict",
+    })
+    .notNull(),
   date: date("date").default("1970-01-01").notNull(),
   ...createdAndUpdatedAtColumns(),
   ...trashableObjectColumns(),
