@@ -1,1 +1,0 @@
-ALTER TABLE "routine_details" ADD COLUMN "description" text;

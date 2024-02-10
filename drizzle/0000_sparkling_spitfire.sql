@@ -6,8 +6,8 @@ CREATE TABLE IF NOT EXISTS "users" (
 	"is_claimed" boolean DEFAULT false NOT NULL,
 	"is_admin" boolean DEFAULT false NOT NULL,
 	"premiumness" text DEFAULT 'free' NOT NULL,
-	"created_at" timestamp with time zone DEFAULT now(),
-	"updated_at" timestamp with time zone DEFAULT now(),
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"updated_at" timestamp with time zone DEFAULT now() NOT NULL,
 	"trashed_at" timestamp with time zone,
 	"trashed_by" integer,
 	CONSTRAINT "users_email_unique" UNIQUE("email")
@@ -19,7 +19,7 @@ CREATE TABLE IF NOT EXISTS "user_profiles" (
 	"first_name" varchar(50),
 	"last_name" varchar(50),
 	"about_me" text,
-	"updated_at" timestamp with time zone DEFAULT now(),
+	"updated_at" timestamp with time zone DEFAULT now() NOT NULL,
 	CONSTRAINT "user_profiles_user_id_unique" UNIQUE("user_id")
 );
 --> statement-breakpoint
@@ -33,8 +33,8 @@ CREATE TABLE IF NOT EXISTS "user_addresses" (
 	"country" varchar(50),
 	"postal" varchar(12),
 	"type" varchar(16) NOT NULL,
-	"created_at" timestamp with time zone DEFAULT now(),
-	"updated_at" timestamp with time zone DEFAULT now(),
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"updated_at" timestamp with time zone DEFAULT now() NOT NULL,
 	"trashed_at" timestamp with time zone,
 	"trashed_by" integer
 );
@@ -42,18 +42,19 @@ CREATE TABLE IF NOT EXISTS "user_addresses" (
 CREATE TABLE IF NOT EXISTS "exercise_sets" (
 	"id" serial PRIMARY KEY NOT NULL,
 	"exercise_id" integer NOT NULL,
-	"actual_weight" numeric(4, 2),
+	"actual_weight" numeric(7, 2),
 	"actual_reps" integer,
 	"actual_exertion" integer,
-	"weight_units" varchar(5),
-	"exertion_units" varchar(10),
+	"weight_units" varchar(5) DEFAULT 'lbs',
+	"exertion_units" varchar(10) DEFAULT 'RPE',
 	"list_order" integer NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "set_properties" (
-	"set_id" integer,
-	"property_id" integer,
+	"set_id" integer NOT NULL,
+	"property_id" integer NOT NULL,
 	"value" text,
+	"is_range" boolean DEFAULT false,
 	CONSTRAINT "set_properties_set_id_property_id_pk" PRIMARY KEY("set_id","property_id")
 );
 --> statement-breakpoint
@@ -70,8 +71,8 @@ CREATE TABLE IF NOT EXISTS "user_exercises" (
 	"detail_id" integer NOT NULL,
 	"routine_id" integer NOT NULL,
 	"list_order" integer NOT NULL,
-	"created_at" timestamp with time zone DEFAULT now(),
-	"updated_at" timestamp with time zone DEFAULT now(),
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"updated_at" timestamp with time zone DEFAULT now() NOT NULL,
 	"trashed_at" timestamp with time zone,
 	"trashed_by" integer
 );
@@ -81,8 +82,8 @@ CREATE TABLE IF NOT EXISTS "exercise_details" (
 	"name_id" integer NOT NULL,
 	"variant_id" integer,
 	"creator_id" integer,
-	"created_at" timestamp with time zone DEFAULT now(),
-	"updated_at" timestamp with time zone DEFAULT now(),
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"updated_at" timestamp with time zone DEFAULT now() NOT NULL,
 	"trashed_at" timestamp with time zone,
 	"trashed_by" integer
 );
@@ -107,7 +108,7 @@ CREATE TABLE IF NOT EXISTS "exercise_names" (
 	"is_verified" boolean DEFAULT false,
 	"default_variant_id" integer,
 	"creator_id" integer,
-	CONSTRAINT "exercise_names_value_creator_id_unique" UNIQUE NULLS NOT DISTINCT("value","creator_id")
+	CONSTRAINT "exercise_names_creator_id_value_unique" UNIQUE NULLS NOT DISTINCT("creator_id","value")
 );
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "exercise_name_variants" (
@@ -121,18 +122,18 @@ CREATE TABLE IF NOT EXISTS "exercise_variant_names" (
 	"value" text NOT NULL,
 	"is_verified" boolean DEFAULT false,
 	"creator_id" integer,
-	CONSTRAINT "exercise_variant_names_value_creator_id_unique" UNIQUE NULLS NOT DISTINCT("value","creator_id")
+	CONSTRAINT "exercise_variant_names_creator_id_value_unique" UNIQUE NULLS NOT DISTINCT("creator_id","value")
 );
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "user_routines" (
 	"id" serial PRIMARY KEY NOT NULL,
 	"user_id" integer NOT NULL,
 	"detail_id" integer NOT NULL,
-	"training_block_id" integer NOT NULL,
+	"training_day_id" integer NOT NULL,
 	"is_exercise" boolean DEFAULT false,
 	"list_order" integer NOT NULL,
-	"created_at" timestamp with time zone DEFAULT now(),
-	"updated_at" timestamp with time zone DEFAULT now(),
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"updated_at" timestamp with time zone DEFAULT now() NOT NULL,
 	"trashed_at" timestamp with time zone,
 	"trashed_by" integer
 );
@@ -140,9 +141,10 @@ CREATE TABLE IF NOT EXISTS "user_routines" (
 CREATE TABLE IF NOT EXISTS "routine_details" (
 	"id" serial PRIMARY KEY NOT NULL,
 	"name" text,
-	"creator_id" integer,
-	"created_at" timestamp with time zone DEFAULT now(),
-	"updated_at" timestamp with time zone DEFAULT now(),
+	"description" text,
+	"creator_id" integer NOT NULL,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"updated_at" timestamp with time zone DEFAULT now() NOT NULL,
 	"trashed_at" timestamp with time zone,
 	"trashed_by" integer
 );
@@ -161,34 +163,14 @@ CREATE TABLE IF NOT EXISTS "properties_for_routine_details" (
 	CONSTRAINT "properties_for_routine_details_name_unique" UNIQUE("name")
 );
 --> statement-breakpoint
-CREATE TABLE IF NOT EXISTS "user_training_blocks" (
+CREATE TABLE IF NOT EXISTS "user_training_days" (
 	"id" serial PRIMARY KEY NOT NULL,
 	"user_id" integer NOT NULL,
-	"detail_id" integer,
-	"date" date DEFAULT '1970-01-01',
-	"created_at" timestamp with time zone DEFAULT now(),
-	"updated_at" timestamp with time zone DEFAULT now(),
+	"date" date DEFAULT '1970-01-01' NOT NULL,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"updated_at" timestamp with time zone DEFAULT now() NOT NULL,
 	"trashed_at" timestamp with time zone,
 	"trashed_by" integer
-);
---> statement-breakpoint
-CREATE TABLE IF NOT EXISTS "training_block_details" (
-	"id" serial PRIMARY KEY NOT NULL,
-	"creator_id" integer
-);
---> statement-breakpoint
-CREATE TABLE IF NOT EXISTS "training_block_detail_properties" (
-	"detail_id" integer NOT NULL,
-	"property_id" integer NOT NULL,
-	"value" text,
-	CONSTRAINT "training_block_detail_properties_detail_id_property_id_pk" PRIMARY KEY("detail_id","property_id")
-);
---> statement-breakpoint
-CREATE TABLE IF NOT EXISTS "properties_for_training_block_details" (
-	"id" serial PRIMARY KEY NOT NULL,
-	"name" text NOT NULL,
-	"data_type" text NOT NULL,
-	CONSTRAINT "properties_for_training_block_details_name_unique" UNIQUE("name")
 );
 --> statement-breakpoint
 DO $$ BEGIN
@@ -312,7 +294,7 @@ EXCEPTION
 END $$;
 --> statement-breakpoint
 DO $$ BEGIN
- ALTER TABLE "user_routines" ADD CONSTRAINT "user_routines_training_block_id_user_training_blocks_id_fk" FOREIGN KEY ("training_block_id") REFERENCES "user_training_blocks"("id") ON DELETE cascade ON UPDATE no action;
+ ALTER TABLE "user_routines" ADD CONSTRAINT "user_routines_training_day_id_user_training_days_id_fk" FOREIGN KEY ("training_day_id") REFERENCES "user_training_days"("id") ON DELETE cascade ON UPDATE no action;
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;
@@ -336,31 +318,7 @@ EXCEPTION
 END $$;
 --> statement-breakpoint
 DO $$ BEGIN
- ALTER TABLE "user_training_blocks" ADD CONSTRAINT "user_training_blocks_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE cascade ON UPDATE no action;
-EXCEPTION
- WHEN duplicate_object THEN null;
-END $$;
---> statement-breakpoint
-DO $$ BEGIN
- ALTER TABLE "user_training_blocks" ADD CONSTRAINT "user_training_blocks_detail_id_training_block_details_id_fk" FOREIGN KEY ("detail_id") REFERENCES "training_block_details"("id") ON DELETE restrict ON UPDATE no action;
-EXCEPTION
- WHEN duplicate_object THEN null;
-END $$;
---> statement-breakpoint
-DO $$ BEGIN
- ALTER TABLE "training_block_details" ADD CONSTRAINT "training_block_details_creator_id_users_id_fk" FOREIGN KEY ("creator_id") REFERENCES "users"("id") ON DELETE cascade ON UPDATE no action;
-EXCEPTION
- WHEN duplicate_object THEN null;
-END $$;
---> statement-breakpoint
-DO $$ BEGIN
- ALTER TABLE "training_block_detail_properties" ADD CONSTRAINT "training_block_detail_properties_detail_id_training_block_details_id_fk" FOREIGN KEY ("detail_id") REFERENCES "training_block_details"("id") ON DELETE cascade ON UPDATE no action;
-EXCEPTION
- WHEN duplicate_object THEN null;
-END $$;
---> statement-breakpoint
-DO $$ BEGIN
- ALTER TABLE "training_block_detail_properties" ADD CONSTRAINT "training_block_detail_properties_property_id_properties_for_training_block_details_id_fk" FOREIGN KEY ("property_id") REFERENCES "properties_for_training_block_details"("id") ON DELETE cascade ON UPDATE no action;
+ ALTER TABLE "user_training_days" ADD CONSTRAINT "user_training_days_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE cascade ON UPDATE no action;
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;

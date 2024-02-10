@@ -1,24 +1,19 @@
-import {
-  pgTable,
-  serial,
-  varchar,
-  boolean,
-  text,
-  unique,
-  uniqueIndex,
-} from "drizzle-orm/pg-core";
+import { pgTable, serial, varchar, boolean, text } from "drizzle-orm/pg-core";
 import {
   trashableObjectColumns,
   createdAndUpdatedAtColumns,
 } from "src/db/schema/utils/schema_helpers";
 import { premiumnessConfigEnum } from "src/db/schema/types/user";
-import { relations, sql } from "drizzle-orm";
-import { userProfiles } from "src/db/schema/users/user_profiles";
-import { userAddresses } from "src/db/schema/users/user_addresses";
-import { userExercises } from "src/db/schema/exercises/user_exercises";
-import { exerciseNames } from "src/db/schema/exercises/exercise_names";
-import { exerciseDetails } from "src/db/schema/exercises/exercise_details";
-import { exerciseVariantNames } from "src/db/schema/exercises/exercise_variant_names";
+import { relations } from "drizzle-orm";
+import { userProfiles, userAddresses } from "src/db/schema/users";
+import {
+  userExercises,
+  exerciseNames,
+  exerciseDetails,
+  exerciseVariantNames,
+} from "src/db/schema/exercises";
+import { routineDetails, userRoutines } from "src/db/schema/routines";
+import { userTrainingDays } from "src/db/schema/training_days";
 
 export const users = pgTable("users", {
   id: serial("id").primaryKey(),
@@ -43,6 +38,9 @@ export const usersRelations = relations(users, ({ one, many }) => ({
   exerciseDetails: many(exerciseDetails),
   exerciseNames: many(exerciseNames),
   exerciseVariantNames: many(exerciseVariantNames),
+  routines: many(userRoutines),
+  routineDetails: many(routineDetails),
+  userTrainingDays: many(userTrainingDays),
 }));
 
 export type UserSchema = typeof users.$inferSelect;

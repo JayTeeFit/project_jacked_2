@@ -1,11 +1,9 @@
 import { UserSchema } from "src/db/schema";
 import {
-  NewUserTrainingBlockSchema,
-  TrainingBlockDetailSchema,
-  UserTrainingBlockSchema,
-  userTrainingBlocks,
-} from "src/db/schema/training_blocks";
-import TrainingBlockDetail from "src/models/training_block/training_block_detail";
+  NewUserTrainingDaySchema,
+  UserTrainingDaySchema,
+  userTrainingDays,
+} from "src/db/schema/training_days";
 import User from "src/models/user/user";
 import {
   DbModelResponse,
@@ -14,48 +12,36 @@ import {
 } from "src/models/utils/model_responses";
 import { DateErrors, isDateString } from "src/utils/date_helpers";
 
-export type UserTrainingBlockUpsertResult = {
+export type UserTrainingDayUpsertResult = {
   error: string | null;
-  userTrainingBlockSchema: UserTrainingBlockSchema | null;
+  userTrainingDaySchema: UserTrainingDaySchema | null;
 };
 
-export type UserTrainingBlockRelations = {
-  detail?: TrainingBlockDetail | TrainingBlockDetailSchema | null;
+export type UserTrainingDayRelations = {
   user?: User | UserSchema | null;
 };
 
-export type UserTrainingBlockWithRelations = UserTrainingBlockSchema &
-  UserTrainingBlockRelations;
+export type UserTrainingDayWithRelations = UserTrainingDaySchema &
+  UserTrainingDayRelations;
 
-export default class UserTrainingBlock implements UserTrainingBlockSchema {
+export default class UserTrainingDay implements UserTrainingDaySchema {
   protected _id: number;
   protected _userId: number;
-  protected _detailId: number;
   protected _date: string;
   protected _trashedAt: Date | null;
   protected _trashedBy: number | null;
   protected _updatedAt: Date;
   protected _createdAt: Date;
-  protected _detail: TrainingBlockDetail | null;
   protected _user: User | null;
 
-  constructor(attributes: UserTrainingBlockWithRelations) {
+  constructor(attributes: UserTrainingDayWithRelations) {
     this._id = attributes.id;
     this._userId = attributes.userId;
-    this._detailId = attributes.detailId;
     this._date = attributes.date;
     this._trashedAt = attributes.trashedAt;
     this._trashedBy = attributes.trashedBy;
     this._updatedAt = attributes.updatedAt;
     this._createdAt = attributes.createdAt;
-    if (
-      !attributes.detail ||
-      attributes.detail instanceof TrainingBlockDetail
-    ) {
-      this._detail = attributes.detail || null;
-    } else {
-      this._detail = new TrainingBlockDetail(attributes.detail);
-    }
     if (!attributes.user || attributes.user instanceof User) {
       this._user = attributes.user || null;
     } else {
@@ -64,8 +50,8 @@ export default class UserTrainingBlock implements UserTrainingBlockSchema {
   }
 
   static async create(
-    attributes: NewUserTrainingBlockSchema
-  ): Promise<DbModelResponse<UserTrainingBlock>> {
+    attributes: NewUserTrainingDaySchema
+  ): Promise<DbModelResponse<UserTrainingDay>> {
     if (attributes.date && !isDateString(attributes.date)) {
       return dbModelResponse({
         errorMessage: DateErrors.INVALID_DATE_STRING,
@@ -81,19 +67,19 @@ export default class UserTrainingBlock implements UserTrainingBlockSchema {
     };
 
     const result = await db.transaction(async (tx) => {
-      let userTrainingBlockSchema: UserTrainingBlockSchema;
+      let userTrainingDaySchema: UserTrainingDaySchema;
       try {
-        [userTrainingBlockSchema] = await tx
-          .insert(userTrainingBlocks)
+        [userTrainingDaySchema] = await tx
+          .insert(userTrainingDays)
           .values(updatedAttr)
           .returning();
       } catch (err) {
-        return UserTrainingBlock._userTrainingBlockCreateResult({
-          error: errorResponse(err, "UserTrainingBlock.create"),
+        return UserTrainingDay._userTrainingDayCreateResult({
+          error: errorResponse(err, "UserTrainingDay.create"),
         });
       }
-      return UserTrainingBlock._userTrainingBlockCreateResult({
-        userTrainingBlockSchema,
+      return UserTrainingDay._userTrainingDayCreateResult({
+        userTrainingDaySchema,
       });
     });
 
@@ -101,19 +87,17 @@ export default class UserTrainingBlock implements UserTrainingBlockSchema {
       return dbModelResponse({ errorMessage: result.error });
     }
 
-    const userTrainingBlock = new UserTrainingBlock(
-      result.userTrainingBlockSchema!
-    );
+    const userTrainingDay = new UserTrainingDay(result.userTrainingDaySchema!);
 
-    return dbModelResponse({ value: userTrainingBlock });
+    return dbModelResponse({ value: userTrainingDay });
   }
 
-  static _userTrainingBlockCreateResult(
-    result: Partial<UserTrainingBlockUpsertResult>
-  ): UserTrainingBlockUpsertResult {
+  static _userTrainingDayCreateResult(
+    result: Partial<UserTrainingDayUpsertResult>
+  ): UserTrainingDayUpsertResult {
     return {
       error: result.error || null,
-      userTrainingBlockSchema: result.userTrainingBlockSchema || null,
+      userTrainingDaySchema: result.userTrainingDaySchema || null,
     };
   }
 
@@ -124,10 +108,6 @@ export default class UserTrainingBlock implements UserTrainingBlockSchema {
 
   get userId(): number {
     return this._userId;
-  }
-
-  get detailId(): number {
-    return this._detailId;
   }
 
   get date(): string {
@@ -150,10 +130,6 @@ export default class UserTrainingBlock implements UserTrainingBlockSchema {
     return this._createdAt;
   }
 
-  get detail(): TrainingBlockDetail | null {
-    return this._detail;
-  }
-
   get user(): User | null {
     return this._user;
   }
@@ -165,10 +141,6 @@ export default class UserTrainingBlock implements UserTrainingBlockSchema {
 
   set userId(userId: number) {
     this._userId = userId;
-  }
-
-  set detailId(detailId: number) {
-    this._detailId = detailId;
   }
 
   set date(date: string) {
@@ -189,10 +161,6 @@ export default class UserTrainingBlock implements UserTrainingBlockSchema {
 
   set createdAt(createdAt: Date) {
     this._createdAt = createdAt;
-  }
-
-  set detail(detail: TrainingBlockDetail | null) {
-    this._detail = detail;
   }
 
   set user(user: User | null) {

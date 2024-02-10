@@ -1,1 +1,0 @@
-ALTER TABLE "set_properties" ADD COLUMN "is_range" boolean DEFAULT false;

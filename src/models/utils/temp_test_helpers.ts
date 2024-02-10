@@ -26,10 +26,10 @@ import {
   userRoutines,
 } from "src/db/schema/routines";
 import {
-  NewUserTrainingBlockSchema,
-  UserTrainingBlockSchema,
-  userTrainingBlocks,
-} from "src/db/schema/training_blocks";
+  NewUserTrainingDaySchema,
+  UserTrainingDaySchema,
+  userTrainingDays,
+} from "src/db/schema/training_days";
 import User from "src/models/user/user";
 import { errorResponse } from "src/models/utils/model_responses";
 
@@ -186,26 +186,26 @@ export async function insertRoutineDetail(attr: NewRoutineDetailSchema) {
   return result as RoutineDetailSchema;
 }
 
-export async function insertTrainingBlock(attr: NewUserTrainingBlockSchema) {
+export async function insertTrainingDay(attr: NewUserTrainingDaySchema) {
   const result = await db.transaction(async (tx) => {
-    let trainingBlock: UserTrainingBlockSchema;
+    let trainingDay: UserTrainingDaySchema;
     try {
-      [trainingBlock] = await tx
-        .insert(userTrainingBlocks)
+      [trainingDay] = await tx
+        .insert(userTrainingDays)
         .values(attr)
         .returning();
     } catch (err) {
-      return errorResponse(err, "tempTestHelpers.insertTrainingBlock");
+      return errorResponse(err, "tempTestHelpers.insertTrainingDay");
     }
 
-    return trainingBlock;
+    return trainingDay;
   });
 
   if (typeof result === "string") {
     return null;
   }
 
-  return result as UserTrainingBlockSchema;
+  return result as UserTrainingDaySchema;
 }
 
 export async function seedRoutines(usr?: User) {
@@ -228,14 +228,14 @@ export async function seedRoutines(usr?: User) {
     user = usr;
   }
 
-  const routineBlockSchema = {
+  const routineDaySchema = {
     userId: user.id,
     date: new Date(Date.now()).toISOString().split("T")[0],
   };
 
-  const maybeTrainingBlock = await insertTrainingBlock(routineBlockSchema);
-  expect(maybeTrainingBlock).not.toBeNull();
-  const trainingBlock = maybeTrainingBlock as UserTrainingBlockSchema;
+  const maybeTrainingDay = await insertTrainingDay(routineDaySchema);
+  expect(maybeTrainingDay).not.toBeNull();
+  const trainingDay = maybeTrainingDay as UserTrainingDaySchema;
 
   const routineDetailSchema: NewRoutineDetailSchema = {
     name: "Upper 1",
@@ -245,7 +245,7 @@ export async function seedRoutines(usr?: User) {
 
   const routineSchema: Omit<NewUserRoutineSchema, "detailId"> = {
     userId: user.id,
-    trainingBlockId: trainingBlock.id,
+    trainingDayId: trainingDay.id,
     listOrder: 0,
   };
 
@@ -305,5 +305,5 @@ export async function seedRoutines(usr?: User) {
     })
   );
 
-  return { exerciseSets, exercise, routine, user, trainingBlock };
+  return { exerciseSets, exercise, routine, user, trainingDay };
 }
