@@ -25,11 +25,6 @@ import {
   routineDetails,
   userRoutines,
 } from "src/db/schema/routines";
-import {
-  NewUserTrainingDaySchema,
-  UserTrainingDaySchema,
-  userTrainingDays,
-} from "src/db/schema/training_days";
 import User from "src/models/user/user";
 import { errorResponse } from "src/models/utils/model_responses";
 import { createDefaultUser } from "src/models/utils/user_test_helpers";
