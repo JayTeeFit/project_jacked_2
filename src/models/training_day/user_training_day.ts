@@ -18,10 +18,19 @@ export type UserTrainingDayUpsertResult = {
 };
 
 export type UserTrainingDayRelations = {
-  user?: User | UserSchema | null;
+  user: User | UserSchema;
 };
 
-export type UserTrainingDayWithRelations = UserTrainingDaySchema &
+export type UserTrainingDayWithRelations = Omit<
+  UserTrainingDaySchema,
+  "userId"
+> &
+  UserTrainingDayRelations;
+
+export type NewUserTrainingDayWithRelations = Omit<
+  NewUserTrainingDaySchema,
+  "userId" | "createdAt" | "updatedAt" | "trashedAt" | "trashedBy"
+> &
   UserTrainingDayRelations;
 
 export default class UserTrainingDay implements UserTrainingDaySchema {
@@ -32,25 +41,25 @@ export default class UserTrainingDay implements UserTrainingDaySchema {
   protected _trashedBy: number | null;
   protected _updatedAt: Date;
   protected _createdAt: Date;
-  protected _user: User | null;
+  protected _user: User;
 
   constructor(attributes: UserTrainingDayWithRelations) {
     this._id = attributes.id;
-    this._userId = attributes.userId;
     this._date = attributes.date;
     this._trashedAt = attributes.trashedAt;
     this._trashedBy = attributes.trashedBy;
     this._updatedAt = attributes.updatedAt;
     this._createdAt = attributes.createdAt;
-    if (!attributes.user || attributes.user instanceof User) {
-      this._user = attributes.user || null;
+    if (attributes.user instanceof User) {
+      this._user = attributes.user;
     } else {
       this._user = new User(attributes.user);
     }
+    this._userId = this._user.id;
   }
 
   static async create(
-    attributes: NewUserTrainingDaySchema
+    attributes: NewUserTrainingDayWithRelations
   ): Promise<DbModelResponse<UserTrainingDay>> {
     if (attributes.date && !isDateString(attributes.date)) {
       return dbModelResponse({
@@ -58,10 +67,13 @@ export default class UserTrainingDay implements UserTrainingDaySchema {
       });
     }
 
+    const { user, ...newTrainingDayAttributes } = attributes;
+
     const now = new Date(Date.now());
 
     const updatedAttr = {
-      ...attributes,
+      ...newTrainingDayAttributes,
+      userId: user.id,
       createdAt: now,
       updatedAt: now,
     };
@@ -87,7 +99,10 @@ export default class UserTrainingDay implements UserTrainingDaySchema {
       return dbModelResponse({ errorMessage: result.error });
     }
 
-    const userTrainingDay = new UserTrainingDay(result.userTrainingDaySchema!);
+    const userTrainingDay = new UserTrainingDay({
+      ...result.userTrainingDaySchema!,
+      user,
+    });
 
     return dbModelResponse({ value: userTrainingDay });
   }
@@ -163,7 +178,7 @@ export default class UserTrainingDay implements UserTrainingDaySchema {
     this._createdAt = createdAt;
   }
 
-  set user(user: User | null) {
+  set user(user: User) {
     this._user = user;
   }
 }

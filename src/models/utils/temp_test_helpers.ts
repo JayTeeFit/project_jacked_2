@@ -32,8 +32,10 @@ import {
 } from "src/db/schema/training_days";
 import User from "src/models/user/user";
 import { errorResponse } from "src/models/utils/model_responses";
+import { createDefaultUser } from "src/models/utils/user_test_helpers";
+import { createUserTrainingDay } from "src/test_helpers/training_day_test_helpers";
 
-export async function insertExerciseSet(attr: NewExerciseSetSchema) {
+async function insertExerciseSet(attr: NewExerciseSetSchema) {
   const result = await db.transaction(async (tx) => {
     let exerciseSet: ExerciseSetSchema;
     try {
@@ -52,7 +54,7 @@ export async function insertExerciseSet(attr: NewExerciseSetSchema) {
   return result as ExerciseSetSchema;
 }
 
-export async function insertExercise(
+async function insertExercise(
   exerciseNameSchema: NewExerciseNameSchema,
   exerciseDetailSchema: Omit<NewExerciseDetailSchema, "nameId">,
   userExerciseSchema: Omit<NewUserExerciseSchema, "detailId">
@@ -75,7 +77,7 @@ export async function insertExercise(
   return exercise!;
 }
 
-export async function insertUserExercise(attr: NewUserExerciseSchema) {
+async function insertUserExercise(attr: NewUserExerciseSchema) {
   const result = await db.transaction(async (tx) => {
     let userExercise: UserExerciseSchema;
     try {
@@ -93,7 +95,7 @@ export async function insertUserExercise(attr: NewUserExerciseSchema) {
   return result as UserExerciseSchema;
 }
 
-export async function insertExerciseDetail(attr: NewExerciseDetailSchema) {
+async function insertExerciseDetail(attr: NewExerciseDetailSchema) {
   const result = await db.transaction(async (tx) => {
     let exerciseDetail: ExerciseDetailSchema;
     try {
@@ -114,7 +116,7 @@ export async function insertExerciseDetail(attr: NewExerciseDetailSchema) {
   return result as ExerciseDetailSchema;
 }
 
-export async function insertExerciseName(attr: NewExerciseNameSchema) {
+async function insertExerciseName(attr: NewExerciseNameSchema) {
   const result = await db.transaction(async (tx) => {
     let exerciseName: ExerciseNameSchema;
     try {
@@ -132,7 +134,7 @@ export async function insertExerciseName(attr: NewExerciseNameSchema) {
   return result as ExerciseNameSchema;
 }
 
-export async function insertRoutine(
+async function insertRoutine(
   routineDetailSchema: NewRoutineDetailSchema,
   userRoutineSchema: Omit<NewUserRoutineSchema, "detailId">
 ) {
@@ -147,7 +149,7 @@ export async function insertRoutine(
   return routine!;
 }
 
-export async function insertUserRoutine(attr: NewUserRoutineSchema) {
+async function insertUserRoutine(attr: NewUserRoutineSchema) {
   const result = await db.transaction(async (tx) => {
     let userRoutine: UserRoutineSchema;
     try {
@@ -165,7 +167,7 @@ export async function insertUserRoutine(attr: NewUserRoutineSchema) {
   return result as UserRoutineSchema;
 }
 
-export async function insertRoutineDetail(attr: NewRoutineDetailSchema) {
+async function insertRoutineDetail(attr: NewRoutineDetailSchema) {
   const result = await db.transaction(async (tx) => {
     let routineDetail: RoutineDetailSchema;
     try {
@@ -186,56 +188,20 @@ export async function insertRoutineDetail(attr: NewRoutineDetailSchema) {
   return result as RoutineDetailSchema;
 }
 
-export async function insertTrainingDay(attr: NewUserTrainingDaySchema) {
-  const result = await db.transaction(async (tx) => {
-    let trainingDay: UserTrainingDaySchema;
-    try {
-      [trainingDay] = await tx
-        .insert(userTrainingDays)
-        .values(attr)
-        .returning();
-    } catch (err) {
-      return errorResponse(err, "tempTestHelpers.insertTrainingDay");
-    }
-
-    return trainingDay;
-  });
-
-  if (typeof result === "string") {
-    return null;
-  }
-
-  return result as UserTrainingDaySchema;
-}
-
 export async function seedRoutines(usr?: User) {
   let user: User;
   if (!usr) {
-    const { value, errorMessage } = await User.create({
-      email: "russellengebretson@gmail.com",
-      username: "rengebre",
-      isActive: true,
-      isClaimed: true,
-      isAdmin: true,
-      premiumness: "coach",
-    });
-
-    expect(errorMessage).toBeNull();
-    expect(value).not.toBeNull();
-
-    user = value as User;
+    user = await createDefaultUser();
   } else {
     user = usr;
   }
 
-  const routineDaySchema = {
-    userId: user.id,
-    date: new Date(Date.now()).toISOString().split("T")[0],
+  const trainingDaySchema = {
+    user: user,
+    date: new Date(Date.now()),
   };
 
-  const maybeTrainingDay = await insertTrainingDay(routineDaySchema);
-  expect(maybeTrainingDay).not.toBeNull();
-  const trainingDay = maybeTrainingDay as UserTrainingDaySchema;
+  const trainingDay = await createUserTrainingDay(trainingDaySchema);
 
   const routineDetailSchema: NewRoutineDetailSchema = {
     name: "Upper 1",

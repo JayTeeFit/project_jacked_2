@@ -12,57 +12,23 @@ import {
 } from "src/models/utils/user_test_helpers";
 
 dbTestSuite("UserModel", () => {
-  // const defaultTestUserSchema = {
-  //   username: "rengebre",
-  //   email: "russell@email.com",
-  //   isClaimed: true,
-  //   isAdmin: true,
-  // };
-  // const defaultTestUserProfileSchema = {
-  //   firstName: "Russell",
-  //   lastName: "Engebretson",
-  //   aboutMe: "Founder of this beautiful application",
-  // };
-
-  // async function createDefaultUser(
-  //   addUserProperties: Partial<NewUserSchema>,
-  //   withProfile?: boolean
-  // ) {
-  //   const userSchema = {
-  //     ...defaultTestUserSchema,
-  //     ...addUserProperties,
-  //   };
-  //   const user = await User.create(userSchema, {
-  //     profileInfo: withProfile ? defaultTestUserProfileSchema : undefined,
-  //   });
-  //   return user.value;
-  // }
-
   suite("Create", () => {
     test("can create a user", async () => {
-      const userOrNull = await createDefaultUser({}, false);
-
-      expect(userOrNull).not.toBeNull();
-
-      const user = userOrNull as User;
+      const user = await createDefaultUser();
 
       expect(user.email).toBe(defaultTestUserSchema.email);
       expect(user.username).toBe(defaultTestUserSchema.username);
     });
 
     test("can create a user with a profile", async () => {
-      const userOrNull = await createDefaultUser({}, true);
-
-      expect(userOrNull).not.toBeNull();
-
-      const user = userOrNull as User;
+      const user = await createDefaultUser();
 
       expect(user.profile).not.toBeNull();
       expect(user.profile).toBeInstanceOf(UserProfile);
     });
 
     test("enforces unique emails", async () => {
-      await createDefaultUser({}, false);
+      await createDefaultUser();
       const newUser: NewUserSchema = {
         username: "test",
         email: defaultTestUserSchema.email,
@@ -75,20 +41,15 @@ dbTestSuite("UserModel", () => {
 
     test("enforces lowercase emails", async () => {
       const email = defaultTestUserSchema.email.toUpperCase();
-      const newUser: NewUserSchema = {
-        username: "test",
-        email,
-      };
 
-      const userResponse = await User.create(newUser);
-      const userOrNull = userResponse.value;
+      const user = await createDefaultUser(/* optUserConfig */ { email });
 
-      expect(userOrNull).not.toBeNull();
-      expect(userOrNull!.email).toBe(email.toLowerCase());
+      expect(user).not.toBeNull();
+      expect(user.email).toBe(email.toLowerCase());
     });
 
     test("enforces case insensitive unique usernames", async () => {
-      await createDefaultUser({}, false);
+      await createDefaultUser();
       const newUser: NewUserSchema = {
         username: defaultTestUserSchema.username.toUpperCase(),
         email: "1" + defaultTestUserSchema.email,
@@ -101,7 +62,7 @@ dbTestSuite("UserModel", () => {
 
   suite("findUserById", () => {
     test("fetches a user with no relations", async () => {
-      const user = await createDefaultUser({}, false);
+      const user = await createDefaultUser();
 
       const foundUser = await User.findUserById(user!.id);
       expect(foundUser).not.toBeNull();
@@ -109,7 +70,7 @@ dbTestSuite("UserModel", () => {
     });
 
     test("fetches and sets profile on user", async () => {
-      const user = await createDefaultUser({}, true);
+      const user = await createDefaultUser();
 
       const foundUser = await User.findUserById(user!.id, { profile: true });
       expect(foundUser).not.toBeNull();
@@ -120,7 +81,7 @@ dbTestSuite("UserModel", () => {
   suite("profileAsync", () => {
     test("returns profile synchronously if pre-fetched", async () => {
       const dbSelectSpy = Sinon.spy(db, "select");
-      const user = await createDefaultUser({}, true);
+      const user = await createDefaultUser();
       expect(user).not.toBeNull();
 
       const profile = await user?.profileAsync();
@@ -128,8 +89,7 @@ dbTestSuite("UserModel", () => {
     });
 
     test("fetches profile async", async () => {
-      const createdUser = await createDefaultUser({}, true);
-      expect(createdUser).not.toBeNull();
+      const createdUser = await createDefaultUser();
 
       const user = await User.findUserById(createdUser!.id);
 
@@ -144,8 +104,7 @@ dbTestSuite("UserModel", () => {
 
   suite("UpdateUser", () => {
     test("can update a user", async () => {
-      const user = await createDefaultUser({}, false);
-      expect(user).not.toBeNull();
+      const user = await createDefaultUser();
 
       const newUsername = "newUsername";
       const updateAttr: Partial<UserSchema> = {
@@ -162,8 +121,9 @@ dbTestSuite("UserModel", () => {
     test("updates updatedAt field", async () => {
       const newTime = new Date(Date.now() - 5 * 24 * 60 * 60 * 1000);
 
-      const user = await createDefaultUser({ updatedAt: newTime }, false);
-      expect(user).not.toBeNull();
+      const user = await createDefaultUser(
+        /* optUserConfig */ { updatedAt: newTime }
+      );
 
       const newUsername = "newUsername";
       const updateAttr: Partial<UserSchema> = {
@@ -177,8 +137,7 @@ dbTestSuite("UserModel", () => {
 
     suite("trash", () => {
       test("trashes a user", async () => {
-        const user = await createDefaultUser({}, false);
-        expect(user).not.toBeNull();
+        const user = await createDefaultUser();
 
         await user!.trash(user!.id);
         expect(user!.trashedBy).toBe(user!.id);
@@ -189,8 +148,7 @@ dbTestSuite("UserModel", () => {
 
     suite("remove", () => {
       test("deletes a user from db", async () => {
-        const user = await createDefaultUser({}, false);
-        expect(user).not.toBeNull();
+        const user = await createDefaultUser();
 
         const userId = user!.id;
         const response = await user!.remove();
@@ -201,8 +159,7 @@ dbTestSuite("UserModel", () => {
       });
 
       test("deletes users profile", async () => {
-        const user = await createDefaultUser({}, false);
-        expect(user).not.toBeNull();
+        const user = await createDefaultUser();
 
         const userId = user!.id;
         const response = await user!.remove();

@@ -1,12 +1,15 @@
 import { NewUserSchema } from "src/db/schema/users";
 import User from "src/models/user/user";
 
-export const defaultTestUserSchema = {
-  username: "rengebre",
+export const defaultTestUserSchema: NewUserSchema = {
   email: "russell@email.com",
+  username: "rengebre",
+  isActive: true,
   isClaimed: true,
   isAdmin: true,
+  premiumness: "coach",
 };
+
 export const defaultTestUserProfileSchema = {
   firstName: "Russell",
   lastName: "Engebretson",
@@ -14,15 +17,19 @@ export const defaultTestUserProfileSchema = {
 };
 
 export async function createDefaultUser(
-  addUserConfig: Partial<NewUserSchema>,
-  withProfile?: boolean
+  optUserConfig?: Partial<NewUserSchema>,
+  withProfile = true
 ) {
   const userSchema = {
     ...defaultTestUserSchema,
-    ...addUserConfig,
+    ...optUserConfig,
   };
   const user = await User.create(userSchema, {
     profileInfo: withProfile ? defaultTestUserProfileSchema : undefined,
   });
-  return user.value;
+
+  expect(user.errorMessage).toBeNull();
+  expect(user.value).not.toBeNull();
+
+  return user.value!;
 }
