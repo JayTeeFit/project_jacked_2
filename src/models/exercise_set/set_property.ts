@@ -269,15 +269,18 @@ export default class SetProperty implements SetPropertyInterface {
       return this.set;
     }
 
-    const set = await db.query.exerciseSets.findFirst({
+    const setSchema = await db.query.exerciseSets.findFirst({
       where: eq(exerciseSets.id, this.setId),
     });
 
-    if (!set) {
+    if (!setSchema) {
       return null;
     }
 
-    return new ExerciseSet(set);
+    const set = new ExerciseSet(setSchema);
+    this.set = set;
+
+    return set;
   }
 
   // Getters

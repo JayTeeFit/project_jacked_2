@@ -1,4 +1,5 @@
-import { UserSchema } from "src/db/schema";
+import { eq } from "drizzle-orm";
+import { UserSchema, users } from "src/db/schema";
 import {
   NewUserTrainingDaySchema,
   UserTrainingDaySchema,
@@ -18,7 +19,7 @@ export type UserTrainingDayUpsertResult = {
 };
 
 export type UserTrainingDayRelations = {
-  user: User | UserSchema;
+  user: User | number;
 };
 
 export type UserTrainingDayWithRelations = Omit<
@@ -41,7 +42,7 @@ export default class UserTrainingDay implements UserTrainingDaySchema {
   protected _trashedBy: number | null;
   protected _updatedAt: Date;
   protected _createdAt: Date;
-  protected _user: User;
+  protected _user: User | null;
 
   constructor(attributes: UserTrainingDayWithRelations) {
     this._id = attributes.id;
@@ -52,10 +53,11 @@ export default class UserTrainingDay implements UserTrainingDaySchema {
     this._createdAt = attributes.createdAt;
     if (attributes.user instanceof User) {
       this._user = attributes.user;
+      this._userId = attributes.user.id;
     } else {
-      this._user = new User(attributes.user);
+      this._userId = attributes.user;
+      this._user = null;
     }
-    this._userId = this._user.id;
   }
 
   static async create(
@@ -73,7 +75,7 @@ export default class UserTrainingDay implements UserTrainingDaySchema {
 
     const updatedAttr = {
       ...newTrainingDayAttributes,
-      userId: user.id,
+      userId: user instanceof User ? user.id : user,
       createdAt: now,
       updatedAt: now,
     };
@@ -114,6 +116,25 @@ export default class UserTrainingDay implements UserTrainingDaySchema {
       error: result.error || null,
       userTrainingDaySchema: result.userTrainingDaySchema || null,
     };
+  }
+
+  async getUser() {
+    if (this._user) {
+      return this._user;
+    }
+
+    const userSchema = await db.query.users.findFirst({
+      where: eq(users.id, this.userId),
+    });
+
+    if (!userSchema) {
+      return null;
+    }
+
+    const user = new User(userSchema);
+    this.user = user;
+
+    return user;
   }
 
   // Getters
@@ -178,7 +199,7 @@ export default class UserTrainingDay implements UserTrainingDaySchema {
     this._createdAt = createdAt;
   }
 
-  set user(user: User) {
+  set user(user: User | null) {
     this._user = user;
   }
 }

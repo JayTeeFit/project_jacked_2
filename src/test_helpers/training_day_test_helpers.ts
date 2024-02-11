@@ -4,7 +4,7 @@ import User from "src/models/user/user";
 import { toDateString } from "src/utils/date_helpers";
 
 export const createUserTrainingDay = async (attr: {
-  user: User | UserSchema;
+  user: User | number;
   date: Date;
 }) => {
   const response = await UserTrainingDay.create({

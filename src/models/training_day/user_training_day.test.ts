@@ -38,6 +38,17 @@ dbTestSuite("UserTrainingDay", () => {
       expect(trainingDay2!.date).toBe(toDateString(tomorrow));
     });
 
+    test("can create a training day with user id", async () => {
+      const user = await createDefaultUser();
+
+      const today = new Date(Date.now());
+
+      const trainingDay = await createUserTrainingDay({
+        user: user.id,
+        date: today,
+      });
+    });
+
     test("rejects invalid date", async () => {
       const user = await createDefaultUser();
 
@@ -48,6 +59,23 @@ dbTestSuite("UserTrainingDay", () => {
       });
 
       expect(response.errorMessage).not.toBeNull();
+    });
+  });
+
+  suite("getUser", () => {
+    test("fetches user", async () => {
+      const user = await createDefaultUser();
+
+      const trainingDay = await createUserTrainingDay({
+        user: user.id,
+        date: new Date(Date.now()),
+      });
+
+      const fetchedUser = await trainingDay.getUser();
+
+      expect(fetchedUser).not.toBeNull();
+      expect(fetchedUser!.id).toEqual(user.id);
+      expect(fetchedUser).toEqual(trainingDay.user);
     });
   });
 });
