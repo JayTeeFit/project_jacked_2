@@ -1,5 +1,3 @@
-import { eq } from "drizzle-orm";
-import { UserSchema, users } from "src/db/schema";
 import {
   NewUserTrainingDaySchema,
   UserTrainingDaySchema,
@@ -11,7 +9,7 @@ import {
   dbModelResponse,
   errorResponse,
 } from "src/models/utils/model_responses";
-import { DateErrors, isDateString } from "src/utils/date_helpers";
+import { DateErrors, isDateString, toDateString } from "src/utils/date_helpers";
 
 export type UserTrainingDayUpsertResult = {
   error: string | null;
@@ -23,21 +21,30 @@ export type UserTrainingDayRelations = {
 };
 
 export type UserTrainingDayWithRelations = Omit<
-  UserTrainingDaySchema,
+  UserTrainingDayInterface,
   "userId"
 > &
   UserTrainingDayRelations;
 
 export type NewUserTrainingDayWithRelations = Omit<
-  NewUserTrainingDaySchema,
+  NewUserTrainingDayInterface,
   "userId" | "createdAt" | "updatedAt" | "trashedAt" | "trashedBy"
 > &
   UserTrainingDayRelations;
 
-export default class UserTrainingDay implements UserTrainingDaySchema {
+export type UserTrainingDayInterface = Omit<UserTrainingDaySchema, "date"> & {
+  date: Date;
+};
+
+export type NewUserTrainingDayInterface = Omit<
+  NewUserTrainingDaySchema,
+  "date"
+> & { date: Date };
+
+export default class UserTrainingDay implements UserTrainingDayInterface {
   protected _id: number;
   protected _userId: number;
-  protected _date: string;
+  protected _date: Date;
   protected _trashedAt: Date | null;
   protected _trashedBy: number | null;
   protected _updatedAt: Date;
@@ -63,19 +70,22 @@ export default class UserTrainingDay implements UserTrainingDaySchema {
   static async create(
     attributes: NewUserTrainingDayWithRelations
   ): Promise<DbModelResponse<UserTrainingDay>> {
-    if (attributes.date && !isDateString(attributes.date)) {
+    const dateString = toDateString(attributes.date);
+
+    if (dateString === DateErrors.INVALID_DATE) {
       return dbModelResponse({
-        errorMessage: DateErrors.INVALID_DATE_STRING,
+        errorMessage: DateErrors.INVALID_DATE,
       });
     }
 
-    const { user, ...newTrainingDayAttributes } = attributes;
+    const { user, ...rest } = attributes;
 
     const now = new Date(Date.now());
 
     const updatedAttr = {
-      ...newTrainingDayAttributes,
+      ...rest,
       userId: user instanceof User ? user.id : user,
+      date: dateString,
       createdAt: now,
       updatedAt: now,
     };
@@ -104,6 +114,7 @@ export default class UserTrainingDay implements UserTrainingDaySchema {
     const userTrainingDay = new UserTrainingDay({
       ...result.userTrainingDaySchema!,
       user,
+      date: new Date(result.userTrainingDaySchema!.date),
     });
 
     return dbModelResponse({ value: userTrainingDay });
@@ -123,18 +134,8 @@ export default class UserTrainingDay implements UserTrainingDaySchema {
       return this._user;
     }
 
-    const userSchema = await db.query.users.findFirst({
-      where: eq(users.id, this.userId),
-    });
-
-    if (!userSchema) {
-      return null;
-    }
-
-    const user = new User(userSchema);
-    this.user = user;
-
-    return user;
+    this.user = await User.findUserById(this._userId);
+    return this.user;
   }
 
   // Getters
@@ -146,7 +147,7 @@ export default class UserTrainingDay implements UserTrainingDaySchema {
     return this._userId;
   }
 
-  get date(): string {
+  get date(): Date {
     return this._date;
   }
 
@@ -179,7 +180,7 @@ export default class UserTrainingDay implements UserTrainingDaySchema {
     this._userId = userId;
   }
 
-  set date(date: string) {
+  set date(date: Date) {
     this._date = date;
   }
 

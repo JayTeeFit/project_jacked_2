@@ -25,7 +25,7 @@ dbTestSuite("UserTrainingDay", () => {
 
       const trainingDay = await createUserTrainingDay({ user, date: today });
 
-      expect(trainingDay.date).toBe(toDateString(today));
+      expect(toDateString(trainingDay.date)).toBe(toDateString(today));
 
       const tomorrow = today;
       tomorrow.setDate(tomorrow.getDate() + 1);
@@ -35,7 +35,7 @@ dbTestSuite("UserTrainingDay", () => {
         date: tomorrow,
       });
 
-      expect(trainingDay2!.date).toBe(toDateString(tomorrow));
+      expect(toDateString(trainingDay2.date)).toBe(toDateString(tomorrow));
     });
 
     test("can create a training day with user id", async () => {
@@ -52,7 +52,7 @@ dbTestSuite("UserTrainingDay", () => {
     test("rejects invalid date", async () => {
       const user = await createDefaultUser();
 
-      let date = "abc";
+      let date = new Date("abc");
       let response = await UserTrainingDay.create({
         user,
         date,
