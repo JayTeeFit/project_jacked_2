@@ -1,14 +1,14 @@
 import { UserExerciseSchema } from "src/db/schema/exercises";
 import { NewExerciseSetSchema } from "src/db/schema/exercise_sets";
 import User from "src/models/user/user";
-import { seedPropertiesForSets } from "src/models/utils/property_for_set_test_helpers";
-import { seedRoutines } from "src/models/utils/temp_test_helpers";
-import { createDefaultUser } from "src/models/utils/user_test_helpers";
-import { dbTestSuite } from "src/test_helpers/setup_server_test_suite";
 import {
+  seedPropertiesForSets,
   createSetAndValidate,
   defaultSetSchema,
-} from "src/models/utils/exercise_set_test_helpers";
+} from "src/test_helpers/exercise_set_test_helpers";
+import { seedRoutines } from "src/test_helpers/temp_test_helpers";
+import { createDefaultUser } from "src/test_helpers/user_test_helpers";
+import { dbTestSuite } from "src/test_helpers/setup_server_test_suite";
 import SetProperty from "src/models/exercise_set/set_property";
 import { ValueValidationError } from "src/models/utils/property_validation_helpers";
 import { ResponseStatus } from "src/models/utils/model_responses";

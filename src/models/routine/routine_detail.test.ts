@@ -1,7 +1,7 @@
 import Sinon from "sinon";
 import RoutineDetail from "src/models/routine/routine_detail";
 import User from "src/models/user/user";
-import { createDefaultUser } from "src/models/utils/user_test_helpers";
+import { createDefaultUser } from "src/test_helpers/user_test_helpers";
 import { dbTestSuite } from "src/test_helpers/setup_server_test_suite";
 
 dbTestSuite("RoutineDetail", () => {

@@ -1,5 +1,5 @@
 import PropertyForSet from "src/models/exercise_set/property_for_set";
-import { seedPropertiesForSets } from "src/models/utils/property_for_set_test_helpers";
+import { seedPropertiesForSets } from "src/test_helpers/exercise_set_test_helpers";
 import { dbTestSuite } from "src/test_helpers/setup_server_test_suite";
 
 dbTestSuite("PropertyForSet", () => {

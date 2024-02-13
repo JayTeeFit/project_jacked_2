@@ -27,7 +27,7 @@ import {
 } from "src/db/schema/routines";
 import User from "src/models/user/user";
 import { errorResponse } from "src/models/utils/model_responses";
-import { createDefaultUser } from "src/models/utils/user_test_helpers";
+import { createDefaultUser } from "src/test_helpers/user_test_helpers";
 import { createUserTrainingDay } from "src/test_helpers/training_day_test_helpers";
 
 async function insertExerciseSet(attr: NewExerciseSetSchema) {

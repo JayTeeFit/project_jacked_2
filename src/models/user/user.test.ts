@@ -9,7 +9,7 @@ import { userProfiles } from "src/db/schema";
 import {
   createDefaultUser,
   defaultTestUserSchema,
-} from "src/models/utils/user_test_helpers";
+} from "src/test_helpers/user_test_helpers";
 
 dbTestSuite("UserModel", () => {
   suite("Create", () => {

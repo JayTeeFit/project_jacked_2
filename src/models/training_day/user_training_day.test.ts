@@ -1,5 +1,5 @@
 import UserTrainingDay from "src/models/training_day/user_training_day";
-import { createDefaultUser } from "src/models/utils/user_test_helpers";
+import { createDefaultUser } from "src/test_helpers/user_test_helpers";
 import { dbTestSuite } from "src/test_helpers/setup_server_test_suite";
 import { createUserTrainingDay } from "src/test_helpers/training_day_test_helpers";
 import { toDateString } from "src/utils/date_helpers";
