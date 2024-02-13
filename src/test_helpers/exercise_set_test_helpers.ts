@@ -7,26 +7,26 @@ import PropertyForSet from "src/models/exercise_set/property_for_set";
 import { NewExerciseSetSchema } from "src/db/schema/exercise_sets";
 import ExerciseSet from "src/models/exercise_set/exercise_set";
 
-export const createSetAndValidate = async (
-  newSetSchema: NewExerciseSetSchema
-) => {
+export async function createSetAndValidate(newSetSchema: NewExerciseSetSchema) {
   const result = await ExerciseSet.create(newSetSchema);
   expect(result!.value).not.toBeNull();
   expect(result!.errorMessage).toBeNull();
   expect(result!.value).toBeInstanceOf(ExerciseSet);
 
   return result!.value!;
-};
+}
 
-export const defaultSetSchema = (exerciseId: number): NewExerciseSetSchema => ({
-  listOrder: 0,
-  exerciseId,
-  actualWeight: "100",
-  actualReps: 10,
-  actualExertion: 8,
-  weightUnits: "lbs",
-  exertionUnits: "RPE",
-});
+export function defaultSetSchema(exerciseId: number): NewExerciseSetSchema {
+  return {
+    listOrder: 0,
+    exerciseId,
+    actualWeight: "100",
+    actualReps: 10,
+    actualExertion: 8,
+    weightUnits: "lbs",
+    exertionUnits: "RPE",
+  };
+}
 
 export async function createProperty(
   propertySchema: CreateSetProperty,
