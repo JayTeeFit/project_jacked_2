@@ -23,7 +23,7 @@ export const userRoutines = pgTable("user_routines", {
   trainingDayId: integer("training_day_id")
     .references(() => userTrainingDays.id, { onDelete: "cascade" })
     .notNull(),
-  isExercise: boolean("is_exercise").default(false),
+  isExercise: boolean("is_exercise").default(false).notNull(),
   ...listOrderColumn(),
   ...createdAndUpdatedAtColumns(),
   ...trashableObjectColumns(),

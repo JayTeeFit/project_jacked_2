@@ -79,13 +79,17 @@ dbTestSuite("UserModel", () => {
   });
 
   suite("profileAsync", () => {
+    let dbQuerySpy: Sinon.SinonSpy;
+
+    beforeEach(() => {
+      dbQuerySpy = Sinon.spy(db.query.users, "findFirst");
+    });
     test("returns profile synchronously if pre-fetched", async () => {
-      const dbSelectSpy = Sinon.spy(db, "select");
       const user = await createDefaultUser();
       expect(user).not.toBeNull();
 
       const profile = await user?.profileAsync();
-      Sinon.assert.notCalled(dbSelectSpy);
+      Sinon.assert.notCalled(dbQuerySpy);
     });
 
     test("fetches profile async", async () => {
@@ -97,6 +101,7 @@ dbTestSuite("UserModel", () => {
       expect(user!.profile).toBeNull();
 
       const asyncProfile = await user!.profileAsync();
+      Sinon.assert.calledOnce(dbQuerySpy);
       expect(asyncProfile).not.toBeNull();
       expect(asyncProfile).toEqual(user!.profile);
     });

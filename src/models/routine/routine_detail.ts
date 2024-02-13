@@ -1,3 +1,5 @@
+import { eq } from "drizzle-orm";
+import { UserSchema } from "src/db/schema/users";
 import {
   NewRoutineDetailSchema,
   RoutineDetailSchema,
@@ -5,17 +7,18 @@ import {
 } from "src/db/schema/routines";
 import User from "src/models/user/user";
 import {
+  DbModelResponse,
   dbModelResponse,
   errorResponse,
 } from "src/models/utils/model_responses";
 
-export type UserTrainingDayUpsertResult = {
+export type RoutineDetailUpsertResult = {
   error: string | null;
   routineDetailSchema: RoutineDetailSchema | null;
 };
 
 export type RoutineDetailRelations = {
-  creator: User | number;
+  creator: number | User | UserSchema;
 };
 
 export type RoutineDetailWithRelations = Omit<
@@ -53,20 +56,25 @@ export default class RoutineDetail implements RoutineDetailSchema {
     if (attributes.creator instanceof User) {
       this._creatorId = attributes.creator.id;
       this._creator = attributes.creator;
-    } else {
+    } else if (typeof attributes.creator === "number") {
       this._creatorId = attributes.creator;
       this._creator = null;
+    } else {
+      this._creatorId = attributes.creator.id;
+      this._creator = new User(attributes.creator);
     }
   }
 
-  static async create(attributes: NewRoutineDetailWithRelations) {
+  static async create(
+    attributes: NewRoutineDetailWithRelations
+  ): Promise<DbModelResponse<RoutineDetail>> {
     const { creator, ...rest } = attributes;
 
     const now = new Date(Date.now());
 
     const newAttributes: NewRoutineDetailSchema = {
       ...rest,
-      creatorId: creator instanceof User ? creator.id : creator,
+      creatorId: typeof creator === "number" ? creator : creator.id,
       createdAt: now,
       updatedAt: now,
     };
@@ -102,12 +110,54 @@ export default class RoutineDetail implements RoutineDetailSchema {
   }
 
   static _routineDetailCreateResult(
-    result: Partial<UserTrainingDayUpsertResult>
-  ): UserTrainingDayUpsertResult {
+    result: Partial<RoutineDetailUpsertResult>
+  ): RoutineDetailUpsertResult {
     return {
       error: result.error || null,
       routineDetailSchema: result.routineDetailSchema || null,
     };
+  }
+
+  static async findRoutineDetailById(
+    id: number,
+    withRelations?: {
+      creator?: true;
+    }
+  ): Promise<RoutineDetail | null> {
+    // with relations
+    if (withRelations && Object.keys(withRelations).length > 0) {
+      const queryParams = {
+        where: eq(routineDetails.id, id),
+        with: withRelations,
+      };
+
+      const result = await db.query.routineDetails.findFirst(queryParams);
+
+      if (!result) {
+        return null;
+      }
+
+      const { creatorId, ...routineDetailSchema } = result;
+
+      return new RoutineDetail(routineDetailSchema);
+    }
+    // no relations
+    const result = await db.query.routineDetails.findFirst({
+      where: eq(routineDetails.id, id),
+    });
+
+    if (!result) {
+      return null;
+    }
+
+    const { creatorId, ...rest } = result;
+
+    const routineDetailSchema: RoutineDetailWithRelations = {
+      ...rest,
+      creator: creatorId,
+    };
+
+    return new RoutineDetail(routineDetailSchema);
   }
 
   async getCreator() {
